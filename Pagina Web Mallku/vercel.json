@@ -1,12 +1,3 @@
 {
-  "version": 2,
-  "builds": [
-    { "src": "*.html", "use": "@vercel/static" },
-    { "src": "*.jpeg", "use": "@vercel/static" }
-  ],
-  "routes": [
-    { "src": "/", "dest": "/index.html" },
-    { "src": "/tienda", "dest": "/tienda.html" },
-    { "src": "/(.*)", "dest": "/$1" }
-  ]
+  "outputDirectory": "."
 }
