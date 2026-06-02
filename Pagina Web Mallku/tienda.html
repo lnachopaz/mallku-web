@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Tienda Mallku · Comprá café de especialidad de altura, tostado en pequeños lotes en Tucumán. Elegí tu origen en grano o molido." />
+<title>Tienda · Mallku Tostadores de Café</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Montserrat:wght@300;400;500;600;700&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+:root{
+  --cream:#F4EFE4; --cream-2:#ECE4D4; --cream-3:#E4DAC6; --paper:#FAF6EC;
+  --espresso:#221710; --coffee:#3C2A1E; --roast:#6F4A33;
+  --siena:#A85C38; --siena-deep:#8C4A2D; --tan:#C9A47A; --muted:#7C6A59;
+  --line:rgba(34,23,16,.12); --line-soft:rgba(34,23,16,.07);
+  --c-colombia:#7B463F; --c-brasil:#4F5A35; --c-peru:#6E7B38; --c-kenya:#BE4A2B; --c-honduras:#2E3647;
+  --maxw:1240px; --ease:cubic-bezier(.22,.61,.36,1);
+}
+*{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+body{ margin:0; font-family:'Montserrat',system-ui,sans-serif; color:var(--coffee); background:var(--cream); line-height:1.7; overflow-x:hidden; -webkit-font-smoothing:antialiased; }
+img{ max-width:100%; display:block; }
+a{ color:inherit; text-decoration:none; }
+button{ font-family:inherit; cursor:pointer; border:none; background:none; }
+h1,h2,h3,h4{ font-family:'Playfair Display',Georgia,serif; color:var(--espresso); font-weight:600; line-height:1.08; margin:0; letter-spacing:-.01em; }
+.wrap{ width:100%; max-width:var(--maxw); margin-inline:auto; padding-inline:clamp(20px,5vw,64px); }
+.eyebrow{ font-size:12px; font-weight:600; letter-spacing:.32em; text-transform:uppercase; color:var(--siena); display:inline-flex; align-items:center; gap:12px; }
+.eyebrow::before{ content:""; width:34px; height:1px; background:var(--siena); opacity:.6; }
+.grain{ position:fixed; inset:0; z-index:1; pointer-events:none; opacity:.05; mix-blend-mode:multiply; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+/* Botones */
+.btn{ position:relative; isolation:isolate; overflow:hidden; display:inline-flex; align-items:center; gap:10px; padding:16px 30px; border-radius:2px; font-size:13px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; transition:all .5s var(--ease); }
+.btn::before{ content:""; position:absolute; inset:0; z-index:-1; transform:scaleX(0); transform-origin:center; transition:transform .5s var(--ease); }
+.btn .arrow{ transition:transform .5s var(--ease); } .btn:hover .arrow{ transform:translateX(5px); }
+.btn-primary{ background:var(--siena); color:var(--paper); } .btn-primary::before{ background:var(--espresso); } .btn-primary:hover::before{ transform:scaleX(1); }
+.btn-ghost{ border:1px solid var(--line); color:var(--espresso); } .btn-ghost::before{ background:var(--siena); } .btn-ghost:hover{ color:var(--paper); border-color:var(--siena); } .btn-ghost:hover::before{ transform:scaleX(1); }
+.btn-light{ border:1px solid rgba(244,239,228,.4); color:var(--paper); } .btn-light::before{ background:var(--siena); } .btn-light:hover{ border-color:var(--siena); } .btn-light:hover::before{ transform:scaleX(1); }
+.btn-wide{ width:100%; justify-content:center; }
+
+/* Navbar */
+.nav{ position:fixed; top:0; left:0; right:0; z-index:100; transition:all .5s var(--ease); border-bottom:1px solid transparent; }
+.nav.scrolled{ background:rgba(244,239,228,.82); backdrop-filter:blur(14px) saturate(140%); -webkit-backdrop-filter:blur(14px) saturate(140%); border-bottom:1px solid var(--line-soft); box-shadow:0 10px 40px -28px rgba(34,23,16,.5); }
+.nav-inner{ display:flex; align-items:center; justify-content:space-between; height:84px; transition:height .5s var(--ease); }
+.nav.scrolled .nav-inner{ height:70px; }
+.brand{ display:flex; align-items:center; gap:13px; }
+.brand .mark{ width:42px; height:42px; flex:none; transition:transform .6s var(--ease); }
+.brand:hover .mark{ transform:rotate(-6deg) scale(1.05); }
+.brand .word{ display:flex; flex-direction:column; line-height:1; }
+.brand .word b{ font-family:'Playfair Display',serif; font-weight:600; font-size:25px; color:var(--espresso); }
+.brand .word span{ font-size:8.5px; font-weight:600; letter-spacing:.3em; color:var(--roast); margin-top:3px; }
+.nav-links{ display:flex; gap:38px; }
+.nav-links a{ position:relative; font-size:13px; font-weight:500; letter-spacing:.06em; color:var(--coffee); padding:6px 0; transition:color .4s var(--ease); }
+.nav-links a::after{ content:""; position:absolute; left:50%; bottom:0; height:1.5px; width:0; background:var(--siena); transform:translateX(-50%); transition:width .45s var(--ease); }
+.nav-links a:hover{ color:var(--siena); } .nav-links a:hover::after{ width:100%; }
+.nav-cta{ display:flex; align-items:center; gap:18px; }
+
+/* Carrito botón */
+.cart-btn{ position:relative; width:46px; height:46px; border-radius:50%; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; transition:all .45s var(--ease); }
+.cart-btn:hover{ background:var(--siena); border-color:var(--siena); }
+.cart-btn svg{ width:20px; height:20px; stroke:var(--espresso); fill:none; stroke-width:1.7; transition:stroke .4s; }
+.cart-btn:hover svg{ stroke:var(--paper); }
+.cart-badge{ position:absolute; top:-5px; right:-5px; min-width:20px; height:20px; padding:0 5px; border-radius:12px; background:var(--espresso); color:var(--cream); font-size:11px; font-weight:600; display:flex; align-items:center; justify-content:center; transform:scale(0); transition:transform .4s var(--ease); }
+.cart-badge.show{ transform:scale(1); }
+
+.nav-toggle{ display:none; width:40px; height:40px; position:relative; }
+.nav-toggle span{ position:absolute; left:9px; right:9px; height:1.6px; background:var(--espresso); transition:all .4s var(--ease); }
+.nav-toggle span:nth-child(1){ top:14px; } .nav-toggle span:nth-child(2){ top:20px; } .nav-toggle span:nth-child(3){ top:26px; }
+.nav-toggle.open span:nth-child(1){ top:20px; transform:rotate(45deg); }
+.nav-toggle.open span:nth-child(2){ opacity:0; }
+.nav-toggle.open span:nth-child(3){ top:20px; transform:rotate(-45deg); }
+.nav-mobile{ position:fixed; inset:0; z-index:99; background:rgba(26,18,12,.97); backdrop-filter:blur(8px); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; opacity:0; visibility:hidden; transition:opacity .5s var(--ease), visibility .5s; }
+.nav-mobile.open{ opacity:1; visibility:visible; }
+.nav-mobile a{ color:var(--cream); font-family:'Playfair Display',serif; font-size:30px; padding:12px; }
+
+/* Encabezado tienda */
+.shop-hero{ padding:150px 0 50px; position:relative; overflow:hidden; }
+.shop-hero .eyebrow{ margin-bottom:20px; }
+.shop-hero h1{ font-size:clamp(40px,6vw,76px); }
+.shop-hero h1 em{ font-style:italic; color:var(--siena); font-weight:500; }
+.shop-hero p{ color:var(--muted); max-width:34em; margin-top:18px; font-size:16.5px; }
+.infobar{ display:flex; gap:30px; flex-wrap:wrap; margin-top:34px; padding-top:26px; border-top:1px solid var(--line); }
+.infobar div{ display:flex; align-items:center; gap:10px; font-size:12.5px; letter-spacing:.04em; color:var(--coffee); }
+.infobar svg{ width:20px; height:20px; stroke:var(--siena); fill:none; stroke-width:1.7; }
+
+/* Catálogo */
+.shop{ padding:30px 0 clamp(80px,11vw,140px); }
+.shop-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:28px; }
+.shop-card{ background:var(--paper); border:1px solid var(--line-soft); border-radius:6px; overflow:hidden; display:flex; flex-direction:column; transition:transform .55s var(--ease), box-shadow .55s var(--ease); }
+.shop-card:hover{ transform:translateY(-8px); box-shadow:0 44px 64px -44px rgba(34,23,16,.5); }
+.shop-card.flash{ animation:flash 1.4s var(--ease); }
+@keyframes flash{ 0%,100%{ box-shadow:0 0 0 0 rgba(168,92,56,0); } 30%{ box-shadow:0 0 0 4px rgba(168,92,56,.5); } }
+
+.shop-stamp{ position:relative; background:var(--accent); color:#F2E7DF; padding:26px 24px 22px; }
+.shop-stamp::after{ content:""; position:absolute; left:0; right:0; bottom:-5px; height:10px; background:radial-gradient(circle 5px at 10px 0, var(--paper) 96%, transparent 100%); background-size:20px 10px; background-repeat:repeat-x; }
+.shop-stamp .s-badge{ font-size:9.5px; font-weight:600; letter-spacing:.2em; text-transform:uppercase; opacity:.85; }
+.shop-stamp h3{ font-family:'Oswald',sans-serif; font-weight:600; font-size:40px; line-height:.9; text-transform:uppercase; color:#F6EEE6; margin-top:8px; }
+.shop-stamp h3 em{ font-family:'Playfair Display',serif; font-style:italic; font-weight:500; font-size:18px; text-transform:none; opacity:.92; }
+.shop-stamp .s-notes{ font-size:11.5px; letter-spacing:.04em; margin-top:12px; padding-top:11px; border-top:1px solid rgba(242,231,223,.28); }
+
+.shop-body{ padding:24px; display:flex; flex-direction:column; gap:16px; flex:1; }
+.shop-meta{ display:flex; gap:16px; }
+.shop-meta div{ font-size:10px; }
+.shop-meta .k{ letter-spacing:.14em; text-transform:uppercase; color:var(--tan); display:block; margin-bottom:3px; }
+.shop-meta .v{ font-weight:600; color:var(--coffee); font-size:12px; }
+.shop-price{ font-family:'Playfair Display',serif; font-size:28px; color:var(--espresso); display:flex; align-items:baseline; gap:7px; }
+.shop-price small{ font-family:'Montserrat',sans-serif; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:500; }
+
+.field-label{ font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--tan); margin-bottom:-6px; }
+.molienda{ display:flex; gap:8px; }
+.molienda button{ flex:1; padding:10px; border:1px solid var(--line); border-radius:3px; font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); transition:all .4s var(--ease); }
+.molienda button.active{ background:var(--espresso); color:var(--cream); border-color:var(--espresso); }
+.row{ display:flex; align-items:center; gap:12px; }
+.qty{ display:flex; align-items:center; border:1px solid var(--line); border-radius:3px; overflow:hidden; }
+.qty button{ width:40px; height:42px; font-size:18px; color:var(--coffee); transition:background .3s; }
+.qty button:hover{ background:var(--cream-2); }
+.qty span{ width:40px; text-align:center; font-weight:600; font-size:14px; }
+.add{ position:relative; isolation:isolate; overflow:hidden; flex:1; height:44px; border-radius:3px; background:var(--accent); color:var(--paper); font-size:12px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; transition:all .5s var(--ease); }
+.add::before{ content:""; position:absolute; inset:0; z-index:-1; background:var(--espresso); transform:scaleX(0); transition:transform .5s var(--ease); }
+.add:hover::before{ transform:scaleX(1); }
+.add.added{ background:var(--espresso); }
+
+/* Drawer carrito */
+.overlay{ position:fixed; inset:0; background:rgba(26,18,12,.5); backdrop-filter:blur(2px); opacity:0; visibility:hidden; transition:all .5s ease; z-index:200; }
+.overlay.open{ opacity:1; visibility:visible; }
+.drawer{ position:fixed; top:0; right:0; height:100%; width:min(430px,94vw); background:var(--paper); z-index:201; transform:translateX(100%); transition:transform .55s var(--ease); display:flex; flex-direction:column; box-shadow:-40px 0 80px -40px rgba(0,0,0,.6); }
+.drawer.open{ transform:none; }
+.drawer-head{ display:flex; align-items:center; justify-content:space-between; padding:26px 26px 18px; border-bottom:1px solid var(--line-soft); }
+.drawer-head h3{ font-size:24px; }
+.drawer-head .count{ font-size:12px; color:var(--muted); letter-spacing:.06em; }
+.drawer-close{ width:38px; height:38px; border-radius:50%; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:18px; color:var(--coffee); transition:all .4s var(--ease); }
+.drawer-close:hover{ background:var(--espresso); color:var(--cream); border-color:var(--espresso); transform:rotate(90deg); }
+.drawer-body{ flex:1; overflow-y:auto; padding:10px 26px; }
+.cart-empty{ text-align:center; color:var(--muted); padding:60px 20px; }
+.cart-empty svg{ width:54px; height:54px; stroke:var(--tan); fill:none; stroke-width:1.4; margin:0 auto 18px; }
+
+.line{ display:flex; gap:14px; padding:20px 0; border-bottom:1px solid var(--line-soft); }
+.line-thumb{ width:54px; height:64px; border-radius:4px; flex:none; background:var(--accent); position:relative; }
+.line-thumb::after{ content:attr(data-i); position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#F2E7DF; font-family:'Oswald',sans-serif; font-weight:600; font-size:13px; letter-spacing:.04em; }
+.line-info{ flex:1; min-width:0; }
+.line-info h4{ font-family:'Oswald',sans-serif; font-weight:600; font-size:17px; text-transform:uppercase; color:var(--espresso); }
+.line-info .sub{ font-size:11px; color:var(--muted); letter-spacing:.04em; margin-top:2px; }
+.line-info .lq{ display:flex; align-items:center; gap:10px; margin-top:10px; }
+.line-info .lq .mini{ display:flex; align-items:center; border:1px solid var(--line); border-radius:3px; }
+.line-info .lq .mini button{ width:28px; height:28px; font-size:15px; color:var(--coffee); }
+.line-info .lq .mini span{ width:28px; text-align:center; font-size:13px; font-weight:600; }
+.line-right{ text-align:right; display:flex; flex-direction:column; justify-content:space-between; }
+.line-right .lp{ font-weight:600; font-size:14px; color:var(--espresso); white-space:nowrap; }
+.line-right .rm{ font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); transition:color .3s; }
+.line-right .rm:hover{ color:var(--c-kenya); }
+
+.drawer-foot{ padding:22px 26px calc(22px + env(safe-area-inset-bottom)); border-top:1px solid var(--line-soft); background:var(--cream); }
+.drawer-foot .ship-note{ font-size:11px; color:var(--muted); margin:0 0 14px; display:flex; gap:8px; align-items:flex-start; }
+.drawer-foot input, .drawer-foot textarea{ width:100%; background:var(--paper); border:1px solid var(--line); border-radius:3px; padding:11px 13px; font-family:inherit; font-size:13px; color:var(--coffee); margin-bottom:10px; outline:none; transition:border-color .3s; resize:none; }
+.drawer-foot input:focus, .drawer-foot textarea:focus{ border-color:var(--siena); }
+.subtotal{ display:flex; justify-content:space-between; align-items:baseline; margin:6px 0 16px; }
+.subtotal .lbl{ font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); }
+.subtotal .amt{ font-family:'Playfair Display',serif; font-size:30px; color:var(--espresso); }
+.wa-btn{ position:relative; isolation:isolate; overflow:hidden; width:100%; height:54px; border-radius:3px; background:#1f8a4c; color:#fff; font-size:13px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; display:flex; align-items:center; justify-content:center; gap:10px; transition:all .5s var(--ease); }
+.wa-btn::before{ content:""; position:absolute; inset:0; z-index:-1; background:#176b3a; transform:scaleX(0); transition:transform .5s var(--ease); }
+.wa-btn:hover::before{ transform:scaleX(1); }
+.wa-btn svg{ width:20px; height:20px; fill:#fff; }
+.wa-btn[disabled]{ opacity:.45; pointer-events:none; }
+.clear-cart{ display:block; width:100%; text-align:center; margin-top:12px; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); transition:color .3s; }
+.clear-cart:hover{ color:var(--coffee); }
+
+/* Footer */
+.footer{ background:#1A120C; color:#C8B8A6; padding:clamp(60px,8vw,90px) 0 36px; }
+.footer-grid{ display:grid; grid-template-columns:1.8fr 1fr 1.4fr; gap:48px; padding-bottom:50px; border-bottom:1px solid rgba(244,239,228,.1); }
+.footer .brand .word b{ color:var(--cream); } .footer .brand .word span{ color:var(--tan); }
+.footer .f-about{ margin-top:22px; font-size:14px; max-width:26em; color:#A99785; }
+.footer h5{ font-size:11px; font-weight:600; letter-spacing:.2em; text-transform:uppercase; color:var(--tan); margin:0 0 20px; }
+.footer ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:12px; }
+.footer ul a{ font-size:14px; color:#C8B8A6; transition:all .4s var(--ease); }
+.footer ul a:hover{ color:var(--cream); padding-left:6px; }
+.socials{ display:flex; gap:12px; margin-top:22px; }
+.socials a{ width:40px; height:40px; border:1px solid rgba(244,239,228,.2); border-radius:50%; display:flex; align-items:center; justify-content:center; transition:all .45s var(--ease); }
+.socials a:hover{ background:var(--siena); border-color:var(--siena); transform:translateY(-4px); }
+.socials a svg{ width:17px; height:17px; fill:#C8B8A6; transition:fill .4s; } .socials a:hover svg{ fill:var(--cream); }
+.footer-bottom{ display:flex; justify-content:space-between; padding-top:28px; font-size:12px; color:#7E6E5E; flex-wrap:wrap; gap:12px; }
+
+[data-reveal]{ opacity:0; transform:translateY(30px); transition:opacity 1s var(--ease), transform 1s var(--ease); }
+[data-reveal].in{ opacity:1; transform:none; }
+
+@media (max-width:1024px){ .shop-grid{ grid-template-columns:repeat(2,1fr); } }
+@media (max-width:860px){
+  .nav-links{ display:none; } .nav-toggle{ display:block; }
+  .footer-grid{ grid-template-columns:1fr; gap:32px; }
+}
+@media (max-width:560px){ .shop-grid{ grid-template-columns:1fr; } .shop-hero{ padding-top:128px; } }
+@media (prefers-reduced-motion:reduce){ *{ animation:none !important; transition-duration:.001s !important; } [data-reveal]{ opacity:1; transform:none; } }
+</style>
+</head>
+<body>
+<div class="grain"></div>
+
+<!-- NAVBAR -->
+<header class="nav" id="nav">
+  <div class="wrap nav-inner">
+    <a href="index.html" class="brand" aria-label="Mallku inicio">
+      <svg class="mark" viewBox="0 0 240 240" aria-hidden="true">
+        <circle cx="120" cy="120" r="120" fill="#9C5C3E"/>
+        <path d="M32 172 L94 90 L120 126 C146 146 170 166 192 190 C166 181 136 167 112 157 C86 147 56 152 38 165 Z" fill="#F4EFE4"/>
+        <path d="M82 106 L94 90 L106 108" fill="none" stroke="#9C5C3E" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="112" cy="122" r="6" fill="#9C5C3E"/>
+        <g fill="none" stroke="#F4EFE4" stroke-width="12" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M124 128 C152 122 174 120 190 114"/>
+          <path d="M116 112 C150 102 180 100 200 92"/>
+          <path d="M110 100 C146 86 178 82 197 76 C211 71 212 53 197 51 C186 49.5 185 60 194 62"/>
+        </g>
+      </svg>
+      <span class="word"><b>Mallku</b><span>TOSTADORES DE CAFÉ</span></span>
+    </a>
+
+    <nav class="nav-links">
+      <a href="index.html">Inicio</a>
+      <a href="index.html#origen">Origen</a>
+      <a href="#catalogo">Tienda</a>
+      <a href="index.html#contacto">Contacto</a>
+    </nav>
+
+    <div class="nav-cta">
+      <button class="cart-btn" id="cartBtn" aria-label="Abrir carrito">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 7h12l1.2 12.2a1 1 0 0 1-1 1.1H5.8a1 1 0 0 1-1-1.1L6 7z" stroke-linejoin="round"/><path d="M9 7a3 3 0 0 1 6 0" stroke-linecap="round"/></svg>
+        <span class="cart-badge" id="cartBadge">0</span>
+      </button>
+      <button class="nav-toggle" id="navToggle" aria-label="Abrir menú"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+
+<div class="nav-mobile" id="navMobile">
+  <a href="index.html">Inicio</a>
+  <a href="index.html#origen">Origen</a>
+  <a href="#catalogo">Tienda</a>
+  <a href="index.html#contacto">Contacto</a>
+</div>
+
+<!-- ENCABEZADO TIENDA -->
+<section class="shop-hero">
+  <div class="wrap">
+    <span class="eyebrow" data-reveal>Tienda · Tostado en Tucumán</span>
+    <h1 data-reveal style="transition-delay:.08s">Elegí tu <em>altura</em>.</h1>
+    <p data-reveal style="transition-delay:.16s">Café de especialidad tostado en pequeños lotes. Seleccioná tu origen, en grano entero o molido para tu método, y armá tu pedido.</p>
+    <div class="infobar" data-reveal style="transition-delay:.24s">
+      <div><svg viewBox="0 0 24 24"><path d="M3 7h11v8H3zM14 10h4l3 3v2h-7z" stroke-linejoin="round"/><circle cx="7" cy="18" r="1.6"/><circle cx="17.5" cy="18" r="1.6"/></svg> Envíos a todo el país</div>
+      <div><svg viewBox="0 0 24 24"><path d="M5 8h11v6a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4z" stroke-linejoin="round"/><path d="M16 9h2.5a2.5 2.5 0 0 1 0 5H16"/><path d="M8 4.5c0 1-.8 1.3-.8 2.3M11.5 4.5c0 1-.8 1.3-.8 2.3" stroke-linecap="round"/></svg> Tostado fresco semanal</div>
+      <div><svg viewBox="0 0 24 24"><path d="M12 3l2.5 5 5.5.8-4 3.9 1 5.5-5-2.7-5 2.7 1-5.5-4-3.9 5.5-.8z" stroke-linejoin="round"/></svg> Café de especialidad</div>
+    </div>
+  </div>
+</section>
+
+<!-- CATÁLOGO -->
+<section class="shop" id="catalogo">
+  <div class="wrap">
+    <div class="shop-grid" id="shopGrid"><!-- inyectado por JS --></div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer" id="contacto">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="brand">
+          <svg class="mark" viewBox="0 0 240 240" aria-hidden="true">
+            <circle cx="120" cy="120" r="120" fill="#9C5C3E"/>
+            <path d="M32 172 L94 90 L120 126 C146 146 170 166 192 190 C166 181 136 167 112 157 C86 147 56 152 38 165 Z" fill="#F4EFE4"/>
+            <path d="M82 106 L94 90 L106 108" fill="none" stroke="#9C5C3E" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="112" cy="122" r="6" fill="#9C5C3E"/>
+            <g fill="none" stroke="#F4EFE4" stroke-width="12" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M124 128 C152 122 174 120 190 114"/>
+              <path d="M116 112 C150 102 180 100 200 92"/>
+              <path d="M110 100 C146 86 178 82 197 76 C211 71 212 53 197 51 C186 49.5 185 60 194 62"/>
+            </g>
+          </svg>
+          <span class="word"><b>Mallku</b><span>TOSTADORES DE CAFÉ</span></span>
+        </a>
+        <p class="f-about">Café de especialidad tostado con altura en Tucumán, Argentina. Granos seleccionados de orígenes que vuelan tan alto como el cóndor.</p>
+        <div class="socials">
+          <a href="https://instagram.com/mallkucafe" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.9.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s0 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58 0-4.85-.07c-1.17-.05-1.8-.25-2.23-.41a3.7 3.7 0 0 1-1.38-.9 3.7 3.7 0 0 1-.9-1.38c-.16-.42-.36-1.06-.41-2.23C2.21 15.58 2.2 15.2 2.2 12s0-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.21 8.8 2.2 12 2.2zm0 1.8c-3.14 0-3.5 0-4.74.07-.9.04-1.38.19-1.7.32-.43.16-.74.36-1.06.68-.32.32-.52.63-.68 1.06-.13.32-.28.8-.32 1.7C3.8 8.5 3.8 8.86 3.8 12s0 3.5.07 4.74c.04.9.19 1.38.32 1.7.16.43.36.74.68 1.06.32.32.63.52 1.06.68.32.13.8.28 1.7.32 1.24.07 1.6.07 4.74.07s3.5 0 4.74-.07c.9-.04 1.38-.19 1.7-.32.43-.16.74-.36 1.06-.68.32-.32.52-.63.68-1.06.13-.32.28-.8.32-1.7.07-1.24.07-1.6.07-4.74s0-3.5-.07-4.74c-.04-.9-.19-1.38-.32-1.7a2.85 2.85 0 0 0-.68-1.06 2.85 2.85 0 0 0-1.06-.68c-.32-.13-.8-.28-1.7-.32C15.5 4 15.14 4 12 4zm0 3.06A4.94 4.94 0 1 1 12 17a4.94 4.94 0 0 1 0-9.88zm0 1.8a3.14 3.14 0 1 0 0 6.28 3.14 3.14 0 0 0 0-6.28zM17.84 6.6a1.15 1.15 0 1 1 0 2.3 1.15 1.15 0 0 1 0-2.3z"/></svg></a>
+          <a href="https://wa.me/5493815555555" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm0 1.8c2.17 0 4.2.85 5.74 2.38a8.08 8.08 0 0 1 2.38 5.73c0 4.48-3.65 8.12-8.13 8.12a8.1 8.1 0 0 1-4.13-1.13l-.3-.18-3.12.82.83-3.04-.2-.31a8.04 8.04 0 0 1-1.24-4.28c0-4.48 3.65-8.12 8.13-8.12zm-2.47 4.3c-.18 0-.47.07-.72.34-.25.27-.95.93-.95 2.27s.97 2.63 1.11 2.81c.14.18 1.9 2.9 4.6 3.96 2.25.89 2.71.71 3.2.67.49-.05 1.58-.65 1.8-1.27.22-.62.22-1.16.16-1.27-.07-.11-.25-.18-.52-.31-.27-.14-1.58-.78-1.83-.87-.25-.09-.43-.14-.61.14-.18.27-.7.86-.86 1.04-.16.18-.32.2-.59.07-.27-.14-1.13-.42-2.16-1.33-.8-.71-1.34-1.59-1.5-1.86-.16-.27-.02-.42.12-.55.12-.12.27-.32.4-.48.14-.16.18-.27.27-.45.09-.18.05-.34-.02-.48-.07-.14-.6-1.49-.84-2.03-.22-.53-.44-.46-.61-.46h-.52z"/></svg></a>
+        </div>
+      </div>
+      <div>
+        <h5>Explorar</h5>
+        <ul>
+          <li><a href="index.html">Inicio</a></li>
+          <li><a href="index.html#origen">Origen</a></li>
+          <li><a href="index.html#experiencia">Experiencia</a></li>
+          <li><a href="#catalogo">Tienda</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>¿Dudas con tu pedido?</h5>
+        <p class="f-about" style="margin-top:0">Escribinos y te ayudamos a elegir tu café ideal según tu método de preparación.</p>
+        <a href="https://wa.me/5493815555555" target="_blank" rel="noopener" class="btn btn-light" style="margin-top:8px">Hablar por WhatsApp</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span id="year"></span> Mallku · Tostadores de Café. Tostado con altura en Tucumán, Argentina.</span>
+      <span><a href="https://instagram.com/mallkucafe" target="_blank" rel="noopener">@mallkucafe</a></span>
+    </div>
+  </div>
+</footer>
+
+<!-- DRAWER CARRITO -->
+<div class="overlay" id="overlay"></div>
+<aside class="drawer" id="drawer" aria-label="Carrito de compras">
+  <div class="drawer-head">
+    <div><h3>Tu carrito</h3><div class="count" id="drawerCount">0 productos</div></div>
+    <button class="drawer-close" id="drawerClose" aria-label="Cerrar">✕</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+  <div class="drawer-foot" id="drawerFoot">
+    <p class="ship-note">El pedido se confirma por WhatsApp. Ahí coordinamos envío o retiro y el pago.</p>
+    <input type="text" id="custName" placeholder="Tu nombre (opcional)" />
+    <textarea id="custNote" rows="2" placeholder="Nota: dirección, método de café, etc. (opcional)"></textarea>
+    <div class="subtotal"><span class="lbl">Subtotal</span><span class="amt" id="subtotal">$0</span></div>
+    <button class="wa-btn" id="checkout" disabled>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm-2.47 6.1c.17 0 .35 0 .5.01.16.01.38-.06.59.45.22.53.74 1.84.8 1.97.07.13.11.29.02.46-.09.18-.13.29-.27.45-.13.16-.28.36-.4.48-.14.13-.28.28-.12.55.16.27.7 1.15 1.5 1.86 1.03.91 1.9 1.19 2.17 1.33.27.13.43.11.59-.07.16-.18.68-.79.86-1.06.18-.27.36-.22.6-.13.25.09 1.56.74 1.83.87.27.13.45.2.52.31.07.11.07.65-.16 1.27-.22.62-1.31 1.22-1.8 1.27-.49.04-.95.22-3.2-.67-2.7-1.06-4.46-3.78-4.6-3.96-.14-.18-1.11-1.47-1.11-2.81 0-1.34.7-2 .95-2.27.25-.27.54-.34.72-.34z"/></svg>
+      Finalizar pedido por WhatsApp
+    </button>
+    <button class="clear-cart" id="clearCart">Vaciar carrito</button>
+  </div>
+</aside>
+
+<script>
+/* =====================================================================
+   CONFIGURACIÓN — EDITAR ACÁ
+   - WHATSAPP: tu número en formato internacional, solo dígitos.
+     Ej. Tucumán +54 9 381 123 4567  ->  "5493811234567"
+   - PRECIOS: 'price' de cada café (en pesos, por bolsa de 250 g).
+     Son valores de EJEMPLO; reemplazalos por los reales.
+   ===================================================================== */
+const WHATSAPP = "5493815555555";   // <-- TU NÚMERO REAL DE WHATSAPP
+const CURRENCY = "$";
+
+const PRODUCTS = {
+  colombia: { name:"Colombia", region:"Huila",        accent:"var(--c-colombia)", notes:"Acidez alta · Cuerpo medio · Frutos rojos",        proceso:"Lavado",  altura:"1400–1800", tueste:"Medio",   price:9500  },
+  brasil:   { name:"Brasil",   region:"Minas Gerais",  accent:"var(--c-brasil)",   notes:"Chocolate · Caramelo · Castañas",                proceso:"Natural", altura:"1100–1300", tueste:"Medio +", price:8900  },
+  peru:     { name:"Perú",     region:"Cajamarca",     accent:"var(--c-peru)",     notes:"Chocolate · Durazno · Miel · Frutos secos",      proceso:"Lavado",  altura:"1800–2200", tueste:"Medio",   price:9900  },
+  kenya:    { name:"Kenya",    region:"Kirinyaga",     accent:"var(--c-kenya)",    notes:"Ciruela · Cítricos · Especias",                  proceso:"Lavado",  altura:"1600",      tueste:"Claro",   price:11500 },
+  honduras: { name:"Honduras", region:"Cantarranas",   accent:"var(--c-honduras)", notes:"Naranja · Azúcar morena · Final cremoso",        proceso:"Lavado",  altura:"1600",      tueste:"Medio –", price:9200  }
+};
+const ORDER = ["colombia","brasil","peru","kenya","honduras"];
+const MOLIENDAS = ["Grano","Molido"];
+
+const fmt = n => CURRENCY + Number(n).toLocaleString('es-AR');
+
+/* ---------- Estado del carrito (localStorage) ---------- */
+const STORAGE_KEY = "mallku_cart_v1";
+let cart = [];
+try { cart = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch(e){ cart = []; }
+const saveCart = () => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(cart)); } catch(e){} };
+
+/* ---------- Render del catálogo ---------- */
+const grid = document.getElementById('shopGrid');
+ORDER.forEach((key, i) => {
+  const p = PRODUCTS[key];
+  const card = document.createElement('article');
+  card.className = 'shop-card';
+  card.id = 'p-' + key;
+  card.setAttribute('data-reveal','');
+  card.style.transitionDelay = (i % 3) * 0.08 + 's';
+  card.style.setProperty('--accent', p.accent);
+  card.innerHTML = `
+    <div class="shop-stamp">
+      <div class="s-badge">Origen único · 250 g</div>
+      <h3>${p.name} <em>${p.region}</em></h3>
+      <div class="s-notes">${p.notes}</div>
+    </div>
+    <div class="shop-body">
+      <div class="shop-meta">
+        <div><span class="k">Proceso</span><span class="v">${p.proceso}</span></div>
+        <div><span class="k">Altura</span><span class="v">${p.altura} msnm</span></div>
+        <div><span class="k">Tueste</span><span class="v">${p.tueste}</span></div>
+      </div>
+      <div class="shop-price">${fmt(p.price)} <small>/ bolsa 250 g</small></div>
+      <div class="field-label">Molienda</div>
+      <div class="molienda" data-key="${key}">
+        ${MOLIENDAS.map((m,idx)=>`<button data-m="${m}" class="${idx===0?'active':''}">${m==='Grano'?'Grano entero':'Molido'}</button>`).join('')}
+      </div>
+      <div class="row">
+        <div class="qty" data-key="${key}">
+          <button data-step="-1" aria-label="Restar">−</button>
+          <span>1</span>
+          <button data-step="1" aria-label="Sumar">+</button>
+        </div>
+        <button class="add" data-key="${key}">Agregar al carrito</button>
+      </div>
+    </div>
+  `;
+  grid.appendChild(card);
+});
+
+/* ---------- Interacción de cada tarjeta ---------- */
+grid.querySelectorAll('.molienda').forEach(group => {
+  group.addEventListener('click', e => {
+    const b = e.target.closest('button'); if(!b) return;
+    group.querySelectorAll('button').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+  });
+});
+grid.querySelectorAll('.qty').forEach(q => {
+  q.addEventListener('click', e => {
+    const b = e.target.closest('button'); if(!b) return;
+    const span = q.querySelector('span');
+    let v = parseInt(span.textContent,10) + parseInt(b.dataset.step,10);
+    v = Math.max(1, Math.min(99, v));
+    span.textContent = v;
+  });
+});
+grid.querySelectorAll('.add').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const key = btn.dataset.key;
+    const card = document.getElementById('p-' + key);
+    const molienda = card.querySelector('.molienda .active').dataset.m;
+    const qty = parseInt(card.querySelector('.qty span').textContent,10);
+    addToCart(key, molienda, qty);
+    btn.textContent = '✓ Agregado';
+    btn.classList.add('added');
+    setTimeout(() => { btn.textContent = 'Agregar al carrito'; btn.classList.remove('added'); }, 1400);
+    openDrawer();
+  });
+});
+
+/* ---------- Lógica del carrito ---------- */
+function lineId(key, molienda){ return key + '__' + molienda; }
+function addToCart(key, molienda, qty){
+  const id = lineId(key, molienda);
+  const found = cart.find(it => it.id === id);
+  if(found){ found.qty = Math.min(99, found.qty + qty); }
+  else { cart.push({ id, key, molienda, qty }); }
+  saveCart(); renderCart();
+}
+function changeQty(id, delta){
+  const it = cart.find(x => x.id === id); if(!it) return;
+  it.qty += delta;
+  if(it.qty <= 0){ cart = cart.filter(x => x.id !== id); }
+  saveCart(); renderCart();
+}
+function removeLine(id){ cart = cart.filter(x => x.id !== id); saveCart(); renderCart(); }
+function cartCount(){ return cart.reduce((s,it)=>s+it.qty,0); }
+function cartTotal(){ return cart.reduce((s,it)=>s + PRODUCTS[it.key].price * it.qty, 0); }
+
+const badge = document.getElementById('cartBadge');
+const drawerBody = document.getElementById('drawerBody');
+const drawerCount = document.getElementById('drawerCount');
+const subtotalEl = document.getElementById('subtotal');
+const checkoutBtn = document.getElementById('checkout');
+
+function renderCart(){
+  const count = cartCount();
+  badge.textContent = count;
+  badge.classList.toggle('show', count > 0);
+  drawerCount.textContent = count + (count === 1 ? ' producto' : ' productos');
+
+  if(cart.length === 0){
+    drawerBody.innerHTML = `
+      <div class="cart-empty">
+        <svg viewBox="0 0 24 24"><path d="M6 7h12l1.2 12.2a1 1 0 0 1-1 1.1H5.8a1 1 0 0 1-1-1.1L6 7z" stroke-linejoin="round"/><path d="M9 7a3 3 0 0 1 6 0" stroke-linecap="round"/></svg>
+        <p>Tu carrito está vacío.<br>Elegí un café para empezar.</p>
+      </div>`;
+    subtotalEl.textContent = fmt(0);
+    checkoutBtn.disabled = true;
+    return;
+  }
+
+  drawerBody.innerHTML = cart.map(it => {
+    const p = PRODUCTS[it.key];
+    return `
+      <div class="line">
+        <div class="line-thumb" data-i="${p.name.slice(0,3).toUpperCase()}" style="background:${p.accent}"></div>
+        <div class="line-info">
+          <h4>${p.name}</h4>
+          <div class="sub">${p.region} · ${it.molienda === 'Grano' ? 'Grano entero' : 'Molido'} · 250 g</div>
+          <div class="lq">
+            <div class="mini">
+              <button data-id="${it.id}" data-d="-1" aria-label="Restar">−</button>
+              <span>${it.qty}</span>
+              <button data-id="${it.id}" data-d="1" aria-label="Sumar">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="line-right">
+          <div class="lp">${fmt(p.price * it.qty)}</div>
+          <button class="rm" data-rm="${it.id}">Quitar</button>
+        </div>
+      </div>`;
+  }).join('');
+
+  drawerBody.querySelectorAll('.mini button').forEach(b => {
+    b.addEventListener('click', () => changeQty(b.dataset.id, parseInt(b.dataset.d,10)));
+  });
+  drawerBody.querySelectorAll('.rm').forEach(b => {
+    b.addEventListener('click', () => removeLine(b.dataset.rm));
+  });
+
+  subtotalEl.textContent = fmt(cartTotal());
+  checkoutBtn.disabled = false;
+}
+
+/* ---------- Drawer abrir/cerrar ---------- */
+const overlay = document.getElementById('overlay');
+const drawer = document.getElementById('drawer');
+function openDrawer(){ overlay.classList.add('open'); drawer.classList.add('open'); document.body.style.overflow = 'hidden'; }
+function closeDrawer(){ overlay.classList.remove('open'); drawer.classList.remove('open'); document.body.style.overflow = ''; }
+document.getElementById('cartBtn').addEventListener('click', openDrawer);
+document.getElementById('drawerClose').addEventListener('click', closeDrawer);
+overlay.addEventListener('click', closeDrawer);
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeDrawer(); });
+document.getElementById('clearCart').addEventListener('click', () => { cart = []; saveCart(); renderCart(); });
+
+/* ---------- Checkout por WhatsApp ---------- */
+checkoutBtn.addEventListener('click', () => {
+  if(cart.length === 0) return;
+  const name = document.getElementById('custName').value.trim();
+  const note = document.getElementById('custNote').value.trim();
+  let msg = "¡Hola Mallku! ☕ Quiero hacer este pedido:\n\n";
+  cart.forEach(it => {
+    const p = PRODUCTS[it.key];
+    msg += `• ${it.qty}× ${p.name} – ${p.region} (${it.molienda === 'Grano' ? 'Grano entero' : 'Molido'}, 250 g) — ${fmt(p.price * it.qty)}\n`;
+  });
+  msg += `\nSubtotal: ${fmt(cartTotal())}`;
+  if(name) msg += `\n\nNombre: ${name}`;
+  if(note) msg += `\nNota: ${note}`;
+  msg += `\n\n(Pedido generado desde la web)`;
+  const url = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+});
+
+/* ---------- Navbar scroll + menú móvil ---------- */
+const nav = document.getElementById('nav');
+const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 40);
+window.addEventListener('scroll', onScroll, { passive:true }); onScroll();
+const toggle = document.getElementById('navToggle');
+const mobile = document.getElementById('navMobile');
+toggle.addEventListener('click', () => {
+  const open = toggle.classList.toggle('open');
+  mobile.classList.toggle('open', open);
+  document.body.style.overflow = open ? 'hidden' : '';
+});
+mobile.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+  toggle.classList.remove('open'); mobile.classList.remove('open'); document.body.style.overflow = '';
+}));
+
+/* ---------- Reveal ---------- */
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+}, { threshold:0.12, rootMargin:'0px 0px -40px 0px' });
+document.querySelectorAll('[data-reveal]').forEach(el => io.observe(el));
+
+/* ---------- Llegada desde "Comprar" (?p=clave) ---------- */
+const params = new URLSearchParams(location.search);
+const pre = params.get('p');
+if(pre && PRODUCTS[pre]){
+  const target = document.getElementById('p-' + pre);
+  if(target){
+    setTimeout(() => {
+      target.scrollIntoView({ behavior:'smooth', block:'center' });
+      target.classList.add('flash');
+      setTimeout(() => target.classList.remove('flash'), 1600);
+    }, 400);
+  }
+}
+
+document.getElementById('year').textContent = new Date().getFullYear();
+renderCart();
+</script>
+</body>
+</html>
