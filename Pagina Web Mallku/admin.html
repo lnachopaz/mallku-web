@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Panel · Mallku</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500&family=Montserrat:wght@300;400;500;600;700&family=Oswald:wght@500;600&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --cream:#F4EFE4; --cream-2:#ECE4D4; --paper:#FAF6EC;
+  --espresso:#221710; --coffee:#3C2A1E; --roast:#6F4A33;
+  --siena:#A85C38; --siena-deep:#8C4A2D; --tan:#C9A47A; --muted:#7C6A59;
+  --line:rgba(34,23,16,.14); --line-soft:rgba(34,23,16,.08);
+  --ok:#1f8a4c; --bad:#b5482e; --ease:cubic-bezier(.22,.61,.36,1);
+}
+*{ box-sizing:border-box; }
+body{ margin:0; font-family:'Montserrat',system-ui,sans-serif; color:var(--coffee); background:var(--cream); line-height:1.55; -webkit-font-smoothing:antialiased; }
+h1,h2,h3,h4{ font-family:'Playfair Display',Georgia,serif; color:var(--espresso); margin:0; font-weight:600; }
+button{ font-family:inherit; cursor:pointer; border:none; background:none; }
+input,select,textarea{ font-family:inherit; font-size:14px; color:var(--coffee); }
+img{ display:block; max-width:100%; }
+.oswald{ font-family:'Oswald',sans-serif; text-transform:uppercase; letter-spacing:.04em; }
+
+/* ---------- Botones ---------- */
+.btn{ display:inline-flex; align-items:center; gap:8px; padding:11px 20px; border-radius:3px; font-size:12.5px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; transition:all .3s var(--ease); }
+.btn-primary{ background:var(--siena); color:var(--paper); } .btn-primary:hover{ background:var(--siena-deep); }
+.btn-dark{ background:var(--espresso); color:var(--cream); } .btn-dark:hover{ background:#000; }
+.btn-ghost{ border:1px solid var(--line); color:var(--coffee); } .btn-ghost:hover{ background:var(--cream-2); }
+.btn-ok{ background:var(--ok); color:#fff; } .btn-ok:hover{ filter:brightness(.92); }
+.btn-sm{ padding:7px 12px; font-size:11px; }
+
+/* ---------- Login ---------- */
+.login{ min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+.login-card{ width:min(420px,100%); background:var(--paper); border:1px solid var(--line-soft); border-radius:10px; padding:42px 36px; box-shadow:0 40px 80px -50px rgba(34,23,16,.5); text-align:center; }
+.login-card .mark{ width:60px; height:60px; margin:0 auto 14px; }
+.login-card h1{ font-size:26px; } .login-card .sub{ font-size:11px; letter-spacing:.28em; text-transform:uppercase; color:var(--roast); margin:4px 0 26px; }
+.login-card input{ width:100%; padding:14px 16px; border:1px solid var(--line); border-radius:4px; background:var(--cream); margin-bottom:14px; outline:none; transition:border-color .3s; }
+.login-card input:focus{ border-color:var(--siena); }
+.login-err{ color:var(--bad); font-size:12.5px; min-height:18px; margin-bottom:8px; }
+
+/* ---------- Layout app ---------- */
+.app{ display:none; }
+.topbar{ position:sticky; top:0; z-index:30; background:rgba(250,246,236,.92); backdrop-filter:blur(12px); border-bottom:1px solid var(--line-soft); }
+.topbar-in{ max-width:1280px; margin:0 auto; padding:14px clamp(16px,3vw,32px); display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; }
+.brand{ display:flex; align-items:center; gap:11px; }
+.brand .mark{ width:38px; height:38px; }
+.brand b{ font-family:'Playfair Display',serif; font-size:21px; color:var(--espresso); }
+.brand span{ display:block; font-size:8px; letter-spacing:.28em; color:var(--roast); }
+.top-actions{ display:flex; gap:9px; align-items:center; flex-wrap:wrap; }
+.saved-tag{ font-size:11px; color:var(--muted); letter-spacing:.04em; }
+
+.wrap{ max-width:1280px; margin:0 auto; padding:22px clamp(16px,3vw,32px) 80px; }
+.tabs{ display:flex; gap:6px; margin-bottom:22px; }
+.tab{ padding:10px 18px; border-radius:30px; font-size:12.5px; font-weight:600; letter-spacing:.06em; color:var(--muted); border:1px solid var(--line); transition:all .3s; }
+.tab.active{ background:var(--espresso); color:var(--cream); border-color:var(--espresso); }
+
+.layout{ display:grid; grid-template-columns:1.15fr .85fr; gap:26px; align-items:start; }
+@media (max-width:980px){ .layout{ grid-template-columns:1fr; } .preview-wrap{ position:static !important; } }
+
+/* ---------- Tarjetas de edición ---------- */
+.edit-card{ background:var(--paper); border:1px solid var(--line-soft); border-radius:9px; padding:18px; margin-bottom:16px; }
+.edit-head{ display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+.swatch{ width:30px; height:30px; border-radius:6px; flex:none; border:1px solid var(--line); }
+.edit-head h3{ font-family:'Oswald',sans-serif; text-transform:uppercase; font-size:19px; letter-spacing:.02em; flex:1; }
+.edit-head .ctrls{ display:flex; gap:5px; }
+.icon-btn{ width:30px; height:30px; border-radius:6px; border:1px solid var(--line); color:var(--coffee); font-size:14px; display:flex; align-items:center; justify-content:center; transition:all .25s; }
+.icon-btn:hover{ background:var(--cream-2); } .icon-btn.danger:hover{ background:var(--bad); color:#fff; border-color:var(--bad); }
+.hidden-pill{ font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--bad); border:1px solid var(--bad); border-radius:20px; padding:2px 9px; }
+
+.grid2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.grid3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+@media (max-width:560px){ .grid2,.grid3{ grid-template-columns:1fr; } }
+.field{ display:flex; flex-direction:column; gap:5px; margin-bottom:12px; }
+.field label{ font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--tan); font-weight:600; }
+.field input[type=text], .field input[type=number], .field select, .field textarea{
+  width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:5px; background:var(--cream); outline:none; transition:border-color .25s; }
+.field input:focus, .field select:focus, .field textarea:focus{ border-color:var(--siena); }
+.field textarea{ resize:vertical; min-height:64px; }
+.row-inline{ display:flex; align-items:center; gap:10px; }
+.row-inline input[type=color]{ width:46px; height:38px; padding:2px; border:1px solid var(--line); border-radius:5px; background:var(--cream); cursor:pointer; }
+.check{ display:inline-flex; align-items:center; gap:8px; font-size:13px; font-weight:500; cursor:pointer; }
+.check input{ width:17px; height:17px; accent-color:var(--siena); }
+
+/* Foto en el editor */
+.foto-box{ display:flex; gap:14px; align-items:center; margin-bottom:12px; }
+.foto-prev{ width:96px; height:96px; border-radius:7px; flex:none; background:var(--cream-2); border:1px solid var(--line); overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center; text-align:center; }
+.foto-prev img{ width:100%; height:100%; object-fit:cover; }
+.foto-prev .empty{ font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); padding:6px; }
+.foto-actions{ display:flex; flex-direction:column; gap:7px; }
+details.adv{ margin-top:6px; border-top:1px solid var(--line-soft); padding-top:10px; }
+details.adv summary{ cursor:pointer; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--roast); font-weight:600; }
+.slider{ display:flex; flex-direction:column; gap:4px; margin-top:10px; }
+.slider .lab{ display:flex; justify-content:space-between; font-size:11px; color:var(--muted); }
+.slider input[type=range]{ width:100%; accent-color:var(--siena); }
+
+.add-card{ width:100%; padding:16px; border:1.5px dashed var(--line); border-radius:9px; color:var(--roast); font-weight:600; letter-spacing:.06em; font-size:13px; transition:all .25s; }
+.add-card:hover{ border-color:var(--siena); color:var(--siena); background:var(--paper); }
+
+/* ---------- Preview ---------- */
+.preview-wrap{ position:sticky; top:84px; }
+.preview-box{ background:var(--cream-2); border:1px solid var(--line-soft); border-radius:9px; padding:16px; }
+.preview-box .ttl{ font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--roast); font-weight:600; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+.pv-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+@media (max-width:560px){ .pv-grid{ grid-template-columns:1fr; } }
+.pv-card{ background:var(--paper); border:1px solid var(--line-soft); border-radius:6px; overflow:hidden; }
+.pv-photo{ position:relative; aspect-ratio:1/1; background:var(--cream); }
+.pv-photo img{ width:100%; height:100%; object-fit:cover; }
+.pv-photo .ph{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; color:#F2E7DF; text-align:center; padding:10px; }
+.pv-photo .ph svg{ width:34px; height:34px; opacity:.92; } .pv-photo .ph b{ font-family:'Oswald',sans-serif; text-transform:uppercase; font-size:11px; letter-spacing:.12em; } .pv-photo .ph small{ font-size:7.5px; letter-spacing:.1em; text-transform:uppercase; opacity:.7; }
+.pv-body{ padding:11px 12px 13px; }
+.pv-body h4{ font-family:'Oswald',sans-serif; text-transform:uppercase; font-size:16px; color:var(--espresso); line-height:1; }
+.pv-body h4 em{ font-family:'Playfair Display',serif; font-style:italic; font-size:11px; color:var(--roast); text-transform:none; }
+.pv-notes{ font-size:10px; color:var(--muted); margin:6px 0 8px; }
+.pv-price{ font-family:'Playfair Display',serif; font-size:17px; color:var(--espresso); }
+.pv-price small{ font-family:'Montserrat',sans-serif; font-size:9px; color:var(--muted); letter-spacing:.06em; }
+.pv-hidden{ opacity:.42; }
+.pv-meta{ font-size:9px; color:var(--muted); margin-top:5px; letter-spacing:.02em; }
+
+/* ---------- Modal publicar ---------- */
+.overlay{ position:fixed; inset:0; background:rgba(26,18,12,.55); backdrop-filter:blur(3px); display:none; align-items:center; justify-content:center; padding:20px; z-index:50; }
+.overlay.open{ display:flex; }
+.modal{ width:min(640px,100%); max-height:90vh; overflow:auto; background:var(--paper); border-radius:11px; padding:28px; box-shadow:0 50px 90px -40px rgba(0,0,0,.6); }
+.modal h2{ font-size:24px; margin-bottom:6px; }
+.modal p{ font-size:13.5px; color:var(--coffee); margin:0 0 16px; }
+.steps{ background:var(--cream-2); border-radius:8px; padding:14px 16px 14px 32px; margin:14px 0; font-size:13px; }
+.steps li{ margin:6px 0; }
+.modal textarea{ width:100%; min-height:150px; border:1px solid var(--line); border-radius:6px; padding:12px; background:var(--cream); font-family:ui-monospace,Menlo,Consolas,monospace; font-size:11.5px; resize:vertical; }
+.modal-actions{ display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+.toast{ position:fixed; bottom:22px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--espresso); color:var(--cream); padding:12px 22px; border-radius:30px; font-size:13px; letter-spacing:.04em; opacity:0; pointer-events:none; transition:all .4s var(--ease); z-index:60; }
+.toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+.note{ font-size:12px; color:var(--muted); background:var(--cream-2); border-left:3px solid var(--tan); padding:10px 14px; border-radius:4px; margin-bottom:18px; }
+</style>
+</head>
+<body>
+
+<!-- ===================== LOGIN ===================== -->
+<div class="login" id="login">
+  <div class="login-card">
+    <svg class="mark" viewBox="0 0 240 240" aria-hidden="true">
+      <circle cx="120" cy="120" r="120" fill="#9C5C3E"/>
+      <path d="M32 172 L94 90 L120 126 C146 146 170 166 192 190 C166 181 136 167 112 157 C86 147 56 152 38 165 Z" fill="#F4EFE4"/>
+      <circle cx="112" cy="122" r="6" fill="#9C5C3E"/>
+      <g fill="none" stroke="#F4EFE4" stroke-width="12" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M124 128 C152 122 174 120 190 114"/><path d="M116 112 C150 102 180 100 200 92"/>
+        <path d="M110 100 C146 86 178 82 197 76 C211 71 212 53 197 51 C186 49.5 185 60 194 62"/>
+      </g>
+    </svg>
+    <h1>Panel Mallku</h1>
+    <div class="sub">Acceso privado</div>
+    <input type="password" id="pass" placeholder="Contraseña" autocomplete="current-password" />
+    <div class="login-err" id="loginErr"></div>
+    <button class="btn btn-primary" id="loginBtn" style="width:100%; justify-content:center;">Entrar</button>
+  </div>
+</div>
+
+<!-- ===================== APP ===================== -->
+<div class="app" id="app">
+  <div class="topbar">
+    <div class="topbar-in">
+      <div class="brand">
+        <svg class="mark" viewBox="0 0 240 240" aria-hidden="true">
+          <circle cx="120" cy="120" r="120" fill="#9C5C3E"/>
+          <path d="M32 172 L94 90 L120 126 C146 146 170 166 192 190 C166 181 136 167 112 157 C86 147 56 152 38 165 Z" fill="#F4EFE4"/>
+          <circle cx="112" cy="122" r="6" fill="#9C5C3E"/>
+          <g fill="none" stroke="#F4EFE4" stroke-width="12" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M124 128 C152 122 174 120 190 114"/><path d="M116 112 C150 102 180 100 200 92"/>
+            <path d="M110 100 C146 86 178 82 197 76 C211 71 212 53 197 51 C186 49.5 185 60 194 62"/>
+          </g>
+        </svg>
+        <div><b>Mallku</b><span>PANEL DE EDICIÓN</span></div>
+      </div>
+      <div class="top-actions">
+        <span class="saved-tag" id="savedTag"></span>
+        <button class="btn btn-ghost btn-sm" id="resetBtn">Descartar cambios</button>
+        <button class="btn btn-dark btn-sm" id="saveBtn">Guardar borrador</button>
+        <button class="btn btn-ok" id="publishBtn">Publicar</button>
+        <button class="btn btn-ghost btn-sm" id="logoutBtn">Salir</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="note">
+      Editás un <b>borrador</b> que se guarda en este navegador. Para que los cambios se vean en la web de tus clientes,
+      apretá <b>Publicar</b> y seguí los pasos (reemplazar <b>datos.js</b> y volver a subir a Vercel).
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="productos">Productos</button>
+      <button class="tab" data-tab="sitio">Sitio y textos</button>
+    </div>
+
+    <div class="layout">
+      <div>
+        <div id="panelProductos"></div>
+        <div id="panelSitio" style="display:none"></div>
+      </div>
+
+      <div class="preview-wrap">
+        <div class="preview-box">
+          <div class="ttl">● Vista previa de la tienda</div>
+          <div class="pv-grid" id="pvGrid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL PUBLICAR ===================== -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h2>Publicar cambios</h2>
+    <p>Generé el archivo <b>datos.js</b> con tus cambios. Para que aparezcan en la web:</p>
+    <ol class="steps">
+      <li>Apretá <b>Descargar datos.js</b> (o <b>Copiar</b>).</li>
+      <li>Reemplazá el archivo <b>datos.js</b> en la carpeta de tu proyecto por este.</li>
+      <li>Volvé a publicar el sitio en Vercel (o pedíselo a Claude en Cowork).</li>
+    </ol>
+    <textarea id="outCode" readonly spellcheck="false"></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-ok" id="downloadBtn">⬇ Descargar datos.js</button>
+      <button class="btn btn-dark" id="copyBtn">Copiar al portapapeles</button>
+      <button class="btn btn-ghost" id="closeModal">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="datos.js"></script>
+<script>
+/* =====================================================================
+   CONTRASEÑA DEL PANEL  ·  cambiá el valor entre comillas por la tuya
+   ===================================================================== */
+const ADMIN_PASS = "mallku2024";
+
+/* ---------- claves ---------- */
+const DRAFT_KEY = "mallku_admin_draft_v1";
+const SESSION_KEY = "mallku_admin_ok";
+const CONTINENTES = [["america","América"],["africa","África"],["asia","Asia"]];
+const NIVELES = [["tueste","Tueste"],["acidez","Acidez"],["cuerpo","Cuerpo"],["intensidad","Intensidad"]];
+
+const CONDOR = `<svg viewBox="0 0 240 240" fill="none"><path d="M32 172 L94 90 L120 126 C146 146 170 166 192 190 C166 181 136 167 112 157 C86 147 56 152 38 165 Z" fill="#F2E7DF"/><g stroke="#F2E7DF" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"><path d="M124 128 C152 122 174 120 190 114"/><path d="M116 112 C150 102 180 100 200 92"/><path d="M110 100 C146 86 178 82 197 76 C211 71 212 53 197 51 C186 49.5 185 60 194 62"/></g></svg>`;
+
+const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const $ = s => document.querySelector(s);
+
+/* ---------- datos base ---------- */
+function baseData(){
+  const d = window.MALLKU_DATA || { config:{}, orden:[], productos:{} };
+  return JSON.parse(JSON.stringify(d));
+}
+let state = baseData();
+
+/* ====================== LOGIN ====================== */
+function enterApp(){
+  $('#login').style.display='none';
+  $('#app').style.display='block';
+  loadDraft();
+  renderProductos();
+  renderSitio();
+  renderPreview();
+}
+$('#loginBtn').addEventListener('click', tryLogin);
+$('#pass').addEventListener('keydown', e => { if(e.key==='Enter') tryLogin(); });
+function tryLogin(){
+  if($('#pass').value === ADMIN_PASS){
+    try{ sessionStorage.setItem(SESSION_KEY,'1'); }catch(e){}
+    enterApp();
+  } else {
+    $('#loginErr').textContent = 'Contraseña incorrecta.';
+    $('#pass').select();
+  }
+}
+try{ if(sessionStorage.getItem(SESSION_KEY)==='1') enterApp(); }catch(e){}
+$('#logoutBtn').addEventListener('click', ()=>{ try{ sessionStorage.removeItem(SESSION_KEY); }catch(e){} location.reload(); });
+
+/* ====================== BORRADOR ====================== */
+let saveTimer=null;
+function saveDraft(silent){
+  try{ localStorage.setItem(DRAFT_KEY, JSON.stringify(state)); }catch(e){}
+  if(!silent){ $('#savedTag').textContent = 'Borrador guardado ✓'; clearTimeout(saveTimer); saveTimer=setTimeout(()=>{$('#savedTag').textContent='';},2200); }
+}
+function loadDraft(){
+  try{ const d = localStorage.getItem(DRAFT_KEY); if(d){ state = JSON.parse(d); } }catch(e){}
+  if(!state.config) state.config={};
+  if(!state.orden) state.orden=Object.keys(state.productos||{});
+  if(!state.productos) state.productos={};
+}
+$('#saveBtn').addEventListener('click', ()=>{ saveDraft(); toast('Borrador guardado'); });
+$('#resetBtn').addEventListener('click', ()=>{
+  if(confirm('¿Descartar tus cambios y volver a lo publicado actualmente?')){
+    try{ localStorage.removeItem(DRAFT_KEY); }catch(e){}
+    state = baseData(); renderProductos(); renderSitio(); renderPreview();
+    toast('Cambios descartados');
+  }
+});
+
+/* ====================== TABS ====================== */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    const tab = t.dataset.tab;
+    $('#panelProductos').style.display = tab==='productos'?'':'none';
+    $('#panelSitio').style.display = tab==='sitio'?'':'none';
+  });
+});
+
+/* ====================== EDITOR DE PRODUCTOS ====================== */
+function field(label, k, f, value, type){
+  type = type || 'text';
+  return `<div class="field"><label>${label}</label><input type="${type}" data-k="${k}" data-f="${f}" value="${esc(value)}" /></div>`;
+}
+function renderProductos(){
+  const cont = $('#panelProductos');
+  cont.innerHTML = '';
+  state.orden.forEach((k, idx) => {
+    const p = state.productos[k]; if(!p) return;
+    const block = document.createElement('div');
+    block.className = 'edit-card';
+    block.innerHTML = `
+      <div class="edit-head">
+        <span class="swatch" style="background:${esc(p.accent||'#7B463F')}"></span>
+        <h3>${esc(p.name||k)}</h3>
+        ${p.visible===false?'<span class="hidden-pill">Oculto</span>':''}
+        <div class="ctrls">
+          <button class="icon-btn" data-act="up" data-k="${k}" title="Subir">↑</button>
+          <button class="icon-btn" data-act="down" data-k="${k}" title="Bajar">↓</button>
+          <button class="icon-btn danger" data-act="del" data-k="${k}" title="Eliminar">✕</button>
+        </div>
+      </div>
+
+      <div class="foto-box">
+        <div class="foto-prev">${ p.foto ? `<img src="${esc(p.foto)}" alt="">` : '<span class="empty">Sin foto</span>' }</div>
+        <div class="foto-actions">
+          <label class="btn btn-ghost btn-sm" style="cursor:pointer">Subir foto
+            <input type="file" accept="image/*" data-foto="${k}" style="display:none">
+          </label>
+          ${ p.foto ? `<button class="btn btn-ghost btn-sm" data-act="delfoto" data-k="${k}">Quitar foto</button>` : '' }
+        </div>
+      </div>
+
+      <div class="grid2">
+        ${field('Nombre', k, 'name', p.name)}
+        ${field('Región', k, 'region', p.region)}
+      </div>
+      <div class="grid3">
+        <div class="field"><label>Continente</label>
+          <select data-k="${k}" data-f="continent">
+            ${CONTINENTES.map(([v,n])=>`<option value="${v}" ${p.continent===v?'selected':''}>${n}</option>`).join('')}
+          </select>
+        </div>
+        <div class="field"><label>Precio (solo números)</label><input type="number" data-k="${k}" data-f="precio" value="${esc(p.precio)}"></div>
+        <div class="field"><label>Color</label>
+          <div class="row-inline">
+            <input type="color" data-k="${k}" data-f="accent" value="${esc(p.accent||'#7B463F')}">
+            <label class="check"><input type="checkbox" data-k="${k}" data-f="visible" ${p.visible!==false?'checked':''}> Visible</label>
+          </div>
+        </div>
+      </div>
+      <div class="field"><label>Notas (separá con · )</label><input type="text" data-k="${k}" data-f="notes" value="${esc(p.notes)}"></div>
+      <div class="grid3">
+        ${field('Variedad', k, 'variedad', p.variedad)}
+        ${field('Proceso', k, 'proceso', p.proceso)}
+        ${field('Altura', k, 'altura', p.altura)}
+      </div>
+      <div class="grid2">
+        ${field('Tueste', k, 'tueste', p.tueste)}
+        ${field('Peso', k, 'peso', p.peso)}
+      </div>
+      <div class="field"><label>Descripción (perfil en el inicio)</label><textarea data-k="${k}" data-f="desc">${esc(p.desc)}</textarea></div>
+
+      <details class="adv">
+        <summary>Niveles del perfil (barras del inicio)</summary>
+        ${NIVELES.map(([nk,nn])=>{
+          const v = (p.levels&&p.levels[nk])||0;
+          return `<div class="slider"><div class="lab"><span>${nn}</span><span data-val="${k}.${nk}">${v}</span></div>
+            <input type="range" min="0" max="100" data-k="${k}" data-f="levels.${nk}" value="${v}"></div>`;
+        }).join('')}
+      </details>
+    `;
+    cont.appendChild(block);
+  });
+  const add = document.createElement('button');
+  add.className='add-card'; add.id='addBtn'; add.textContent='+ Agregar café';
+  add.addEventListener('click', addProduct);
+  cont.appendChild(add);
+}
+
+/* ----- inputs de producto (delegado) ----- */
+function onFieldChange(e){
+  const t = e.target;
+  if(t.dataset.k && t.dataset.f){
+    const k=t.dataset.k, f=t.dataset.f;
+    let v = (t.type==='checkbox') ? t.checked : t.value;
+    if(t.type==='number') v = Number(v)||0;
+    if(f.indexOf('levels.')===0){
+      const nk=f.split('.')[1];
+      state.productos[k].levels = state.productos[k].levels||{};
+      state.productos[k].levels[nk] = Number(v)||0;
+      const span = document.querySelector(`[data-val="${k}.${nk}"]`); if(span) span.textContent=v;
+    } else {
+      state.productos[k][f] = v;
+      if(f==='accent'){ const sw=t.closest('.edit-card').querySelector('.swatch'); if(sw) sw.style.background=v; }
+      if(f==='name'){ const h=t.closest('.edit-card').querySelector('h3'); if(h) h.textContent=v||k; }
+    }
+    renderPreview(); saveDraft();
+  } else if(t.dataset.cfg){
+    state.config[t.dataset.cfg] = t.value;
+    renderPreview(); saveDraft();
+  }
+}
+$('#app').addEventListener('input', onFieldChange);
+$('#app').addEventListener('change', e=>{
+  if(e.target.type==='checkbox') onFieldChange(e);
+  if(e.target.dataset.foto !== undefined && e.target.files && e.target.files[0]) handleFoto(e.target);
+});
+
+/* ----- acciones (subir/bajar/eliminar/quitar foto) ----- */
+$('#app').addEventListener('click', e=>{
+  const b = e.target.closest('[data-act]'); if(!b) return;
+  const act=b.dataset.act, k=b.dataset.k, i=state.orden.indexOf(k);
+  if(act==='up' && i>0){ [state.orden[i-1],state.orden[i]]=[state.orden[i],state.orden[i-1]]; }
+  if(act==='down' && i<state.orden.length-1){ [state.orden[i+1],state.orden[i]]=[state.orden[i],state.orden[i+1]]; }
+  if(act==='del'){ if(!confirm('¿Eliminar este café del catálogo?')) return; state.orden.splice(i,1); delete state.productos[k]; }
+  if(act==='delfoto'){ state.productos[k].foto=''; }
+  if(['up','down','del','delfoto'].includes(act)){ renderProductos(); renderPreview(); saveDraft(); }
+});
+
+/* ----- subir foto (con reescalado para no inflar el archivo) ----- */
+function handleFoto(input){
+  const file = input.files[0]; const k = input.dataset.foto;
+  toast('Procesando foto…');
+  fileToDataURL(file, 900, .85).then(durl=>{
+    state.productos[k].foto = durl;
+    renderProductos(); renderPreview(); saveDraft();
+    toast('Foto cargada ✓');
+  }).catch(()=>toast('No se pudo leer la imagen'));
+}
+function fileToDataURL(file, maxW, quality){
+  return new Promise((res,rej)=>{
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      const img=new Image();
+      img.onload=()=>{
+        let w=img.width, h=img.height;
+        if(w>maxW){ h=Math.round(h*maxW/w); w=maxW; }
+        const c=document.createElement('canvas'); c.width=w; c.height=h;
+        c.getContext('2d').drawImage(img,0,0,w,h);
+        try{ res(c.toDataURL('image/jpeg', quality)); }catch(err){ res(ev.target.result); }
+      };
+      img.onerror=rej; img.src=ev.target.result;
+    };
+    reader.onerror=rej; reader.readAsDataURL(file);
+  });
+}
+
+/* ----- agregar producto ----- */
+function addProduct(){
+  let key = prompt('Nombre corto/clave para el café (sin espacios). Ej: etiopia');
+  if(!key) return;
+  key = key.toLowerCase().normalize('NFD').replace(/[^a-z0-9]/g,'');
+  if(!key){ alert('Clave inválida.'); return; }
+  if(state.productos[key]){ alert('Ya existe un café con esa clave.'); return; }
+  state.productos[key] = { name:'Nuevo café', region:'', continent:'america', accent:'#7B463F', foto:'',
+    notes:'', variedad:'', proceso:'', altura:'', tueste:'', peso:'250 g', precio:0, visible:true, desc:'',
+    levels:{ tueste:50, acidez:50, cuerpo:50, intensidad:50 } };
+  state.orden.push(key);
+  renderProductos(); renderPreview(); saveDraft();
+  toast('Café agregado');
+}
+
+/* ====================== EDITOR DE SITIO/TEXTOS ====================== */
+function cfgField(label, key, hint, type){
+  const v = state.config[key]||'';
+  const h = hint?`<div style="font-size:11px;color:var(--muted);margin-top:-2px">${hint}</div>`:'';
+  if(type==='textarea') return `<div class="field"><label>${label}</label>${h}<textarea data-cfg="${key}">${esc(v)}</textarea></div>`;
+  return `<div class="field"><label>${label}</label>${h}<input type="text" data-cfg="${key}" value="${esc(v)}"></div>`;
+}
+function renderSitio(){
+  $('#panelSitio').innerHTML = `
+    <div class="edit-card">
+      <div class="edit-head"><h3 style="font-family:'Playfair Display',serif;text-transform:none">Contacto</h3></div>
+      ${cfgField('WhatsApp (solo números, con código país)','whatsapp','Ej: 5493813361950 = +54 9 381 336 1950')}
+      ${cfgField('Instagram (link completo)','instagram')}
+      ${cfgField('Email','email')}
+      ${cfgField('Símbolo de moneda','moneda','Ej: $')}
+    </div>
+    <div class="edit-card">
+      <div class="edit-head"><h3 style="font-family:'Playfair Display',serif;text-transform:none">Textos de la página</h3></div>
+      ${cfgField('Título principal (inicio)','heroTitulo','Lo que va entre &lt;em&gt; ... &lt;/em&gt; se ve resaltado')}
+      ${cfgField('Subtítulo (inicio)','heroSub','',"textarea")}
+      ${cfgField('Título de la tienda','tiendaTitulo')}
+      ${cfgField('Subtítulo de la tienda','tiendaSub','',"textarea")}
+      ${cfgField('Texto del pie de página','footerAbout','',"textarea")}
+    </div>
+  `;
+}
+
+/* ====================== VISTA PREVIA ====================== */
+function fmt(n){ return (state.config.moneda||'$') + Number(n||0).toLocaleString('es-AR'); }
+function renderPreview(){
+  const grid = $('#pvGrid'); grid.innerHTML='';
+  state.orden.forEach(k=>{
+    const p = state.productos[k]; if(!p) return;
+    const photo = p.foto ? `<img src="${esc(p.foto)}" alt="">`
+      : `<div class="ph" style="background:${esc(p.accent||'#7B463F')}">${CONDOR}<b>${esc(p.name)}</b><small>${esc(p.region)}</small></div>`;
+    const card = document.createElement('div');
+    card.className = 'pv-card' + (p.visible===false?' pv-hidden':'');
+    card.innerHTML = `
+      <div class="pv-photo">${photo}</div>
+      <div class="pv-body">
+        <h4>${esc(p.name)} <em>${esc(p.region)}</em></h4>
+        <div class="pv-notes">${esc(p.notes)}</div>
+        <div class="pv-price">${fmt(p.precio)} <small>/ ${esc(p.peso||'250 g')}</small></div>
+        <div class="pv-meta">${esc(p.variedad)} · ${esc(p.proceso)} · ${esc(p.tueste)}${p.visible===false?' · (oculto)':''}</div>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+/* ====================== PUBLICAR ====================== */
+function buildFile(){
+  const header = "/* Archivo generado por el panel admin de Mallku (admin.html).\n"
+    + "   Para publicar: reemplazá este datos.js en tu proyecto y volvé a subir a Vercel. */\n";
+  return header + "window.MALLKU_DATA = " + JSON.stringify(state, null, 2) + ";\n";
+}
+$('#publishBtn').addEventListener('click', ()=>{
+  saveDraft(true);
+  $('#outCode').value = buildFile();
+  $('#overlay').classList.add('open');
+});
+$('#closeModal').addEventListener('click', ()=> $('#overlay').classList.remove('open'));
+$('#overlay').addEventListener('click', e=>{ if(e.target===$('#overlay')) $('#overlay').classList.remove('open'); });
+$('#downloadBtn').addEventListener('click', ()=>{
+  const blob = new Blob([buildFile()], {type:'text/javascript'});
+  const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='datos.js';
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
+  toast('datos.js descargado');
+});
+$('#copyBtn').addEventListener('click', ()=>{
+  const ta=$('#outCode'); ta.select();
+  navigator.clipboard.writeText(ta.value).then(()=>toast('Copiado ✓')).catch(()=>{ document.execCommand('copy'); toast('Copiado ✓'); });
+});
+
+/* ====================== TOAST ====================== */
+let toastTimer=null;
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),2000); }
+</script>
+</body>
+</html>

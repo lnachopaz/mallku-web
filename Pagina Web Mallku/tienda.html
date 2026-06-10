@@ -93,7 +93,15 @@ h1,h2,h3,h4{ font-family:'Playfair Display',Georgia,serif; color:var(--espresso)
 .shop-card.flash{ animation:flash 1.4s var(--ease); }
 @keyframes flash{ 0%,100%{ box-shadow:0 0 0 0 rgba(168,92,56,0); } 30%{ box-shadow:0 0 0 4px rgba(168,92,56,.5); } }
 
-.shop-stamp{ position:relative; background:var(--accent); color:#F2E7DF; padding:26px 24px 22px; }
+/* Foto del producto (o placeholder si no hay foto) */
+.shop-photo{ position:relative; aspect-ratio:1/1; background:var(--cream-2); overflow:hidden; }
+.shop-photo img{ width:100%; height:100%; object-fit:cover; display:block; }
+.shop-photo .ph{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:9px; background:var(--accent); color:#F2E7DF; text-align:center; padding:20px; }
+.shop-photo .ph svg{ width:52px; height:52px; opacity:.92; }
+.shop-photo .ph b{ font-family:'Oswald',sans-serif; letter-spacing:.18em; font-size:14px; text-transform:uppercase; }
+.shop-photo .ph small{ font-size:9.5px; letter-spacing:.14em; text-transform:uppercase; opacity:.72; }
+
+.shop-stamp{ position:relative; background:var(--accent); color:#F2E7DF; padding:22px 24px 20px; }
 .shop-stamp::after{ content:""; position:absolute; left:0; right:0; bottom:-5px; height:10px; background:radial-gradient(circle 5px at 10px 0, var(--paper) 96%, transparent 100%); background-size:20px 10px; background-repeat:repeat-x; }
 .shop-stamp .s-badge{ font-size:9.5px; font-weight:600; letter-spacing:.2em; text-transform:uppercase; opacity:.85; }
 .shop-stamp h3{ font-family:'Oswald',sans-serif; font-weight:600; font-size:40px; line-height:.9; text-transform:uppercase; color:#F6EEE6; margin-top:8px; }
@@ -101,7 +109,7 @@ h1,h2,h3,h4{ font-family:'Playfair Display',Georgia,serif; color:var(--espresso)
 .shop-stamp .s-notes{ font-size:11.5px; letter-spacing:.04em; margin-top:12px; padding-top:11px; border-top:1px solid rgba(242,231,223,.28); }
 
 .shop-body{ padding:24px; display:flex; flex-direction:column; gap:16px; flex:1; }
-.shop-meta{ display:flex; gap:16px; }
+.shop-meta{ display:flex; flex-wrap:wrap; gap:12px 16px; }
 .shop-meta div{ font-size:10px; }
 .shop-meta .k{ letter-spacing:.14em; text-transform:uppercase; color:var(--tan); display:block; margin-bottom:3px; }
 .shop-meta .v{ font-weight:600; color:var(--coffee); font-size:12px; }
@@ -242,8 +250,8 @@ h1,h2,h3,h4{ font-family:'Playfair Display',Georgia,serif; color:var(--espresso)
 <section class="shop-hero">
   <div class="wrap">
     <span class="eyebrow" data-reveal>Tienda · Tostado en Tucumán</span>
-    <h1 data-reveal style="transition-delay:.08s">Elegí tu <em>altura</em>.</h1>
-    <p data-reveal style="transition-delay:.16s">Café de especialidad tostado en pequeños lotes. Seleccioná tu origen, en grano entero o molido para tu método, y armá tu pedido.</p>
+    <h1 id="shopTitulo" data-reveal style="transition-delay:.08s">Elegí tu <em>altura</em>.</h1>
+    <p id="shopSub" data-reveal style="transition-delay:.16s">Café de especialidad tostado en pequeños lotes. Seleccioná tu origen, en grano entero o molido para tu método, y armá tu pedido.</p>
     <div class="infobar" data-reveal style="transition-delay:.24s">
       <div><svg viewBox="0 0 24 24"><path d="M3 7h11v8H3zM14 10h4l3 3v2h-7z" stroke-linejoin="round"/><circle cx="7" cy="18" r="1.6"/><circle cx="17.5" cy="18" r="1.6"/></svg> Envíos a todo el país</div>
       <div><svg viewBox="0 0 24 24"><path d="M5 8h11v6a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4z" stroke-linejoin="round"/><path d="M16 9h2.5a2.5 2.5 0 0 1 0 5H16"/><path d="M8 4.5c0 1-.8 1.3-.8 2.3M11.5 4.5c0 1-.8 1.3-.8 2.3" stroke-linecap="round"/></svg> Tostado fresco semanal</div>
@@ -278,7 +286,7 @@ h1,h2,h3,h4{ font-family:'Playfair Display',Georgia,serif; color:var(--espresso)
           </svg>
           <span class="word"><b>Mallku</b><span>TOSTADORES DE CAFÉ</span></span>
         </a>
-        <p class="f-about">Café de especialidad tostado con altura en Tucumán, Argentina. Granos seleccionados de orígenes que vuelan tan alto como el cóndor.</p>
+        <p class="f-about" id="footerAbout">Café de especialidad tostado con altura en Tucumán, Argentina. Granos seleccionados de orígenes que vuelan tan alto como el cóndor.</p>
         <div class="socials">
           <a href="https://instagram.com/mallkucafe" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.9.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s0 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58 0-4.85-.07c-1.17-.05-1.8-.25-2.23-.41a3.7 3.7 0 0 1-1.38-.9 3.7 3.7 0 0 1-.9-1.38c-.16-.42-.36-1.06-.41-2.23C2.21 15.58 2.2 15.2 2.2 12s0-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.21 8.8 2.2 12 2.2zm0 1.8c-3.14 0-3.5 0-4.74.07-.9.04-1.38.19-1.7.32-.43.16-.74.36-1.06.68-.32.32-.52.63-.68 1.06-.13.32-.28.8-.32 1.7C3.8 8.5 3.8 8.86 3.8 12s0 3.5.07 4.74c.04.9.19 1.38.32 1.7.16.43.36.74.68 1.06.32.32.63.52 1.06.68.32.13.8.28 1.7.32 1.24.07 1.6.07 4.74.07s3.5 0 4.74-.07c.9-.04 1.38-.19 1.7-.32.43-.16.74-.36 1.06-.68.32-.32.52-.63.68-1.06.13-.32.28-.8.32-1.7.07-1.24.07-1.6.07-4.74s0-3.5-.07-4.74c-.04-.9-.19-1.38-.32-1.7a2.85 2.85 0 0 0-.68-1.06 2.85 2.85 0 0 0-1.06-.68c-.32-.13-.8-.28-1.7-.32C15.5 4 15.14 4 12 4zm0 3.06A4.94 4.94 0 1 1 12 17a4.94 4.94 0 0 1 0-9.88zm0 1.8a3.14 3.14 0 1 0 0 6.28 3.14 3.14 0 0 0 0-6.28zM17.84 6.6a1.15 1.15 0 1 1 0 2.3 1.15 1.15 0 0 1 0-2.3z"/></svg></a>
           <a href="https://wa.me/5493815555555" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm0 1.8c2.17 0 4.2.85 5.74 2.38a8.08 8.08 0 0 1 2.38 5.73c0 4.48-3.65 8.12-8.13 8.12a8.1 8.1 0 0 1-4.13-1.13l-.3-.18-3.12.82.83-3.04-.2-.31a8.04 8.04 0 0 1-1.24-4.28c0-4.48 3.65-8.12 8.13-8.12zm-2.47 4.3c-.18 0-.47.07-.72.34-.25.27-.95.93-.95 2.27s.97 2.63 1.11 2.81c.14.18 1.9 2.9 4.6 3.96 2.25.89 2.71.71 3.2.67.49-.05 1.58-.65 1.8-1.27.22-.62.22-1.16.16-1.27-.07-.11-.25-.18-.52-.31-.27-.14-1.58-.78-1.83-.87-.25-.09-.43-.14-.61.14-.18.27-.7.86-.86 1.04-.16.18-.32.2-.59.07-.27-.14-1.13-.42-2.16-1.33-.8-.71-1.34-1.59-1.5-1.86-.16-.27-.02-.42.12-.55.12-.12.27-.32.4-.48.14-.16.18-.27.27-.45.09-.18.05-.34-.02-.48-.07-.14-.6-1.49-.84-2.03-.22-.53-.44-.46-.61-.46h-.52z"/></svg></a>
@@ -327,28 +335,43 @@ h1,h2,h3,h4{ font-family:'Playfair Display',Georgia,serif; color:var(--espresso)
   </div>
 </aside>
 
+<script src="datos.js"></script>
 <script>
 /* =====================================================================
-   CONFIGURACIÓN — EDITAR ACÁ
-   - WHATSAPP: tu número en formato internacional, solo dígitos.
-     Ej. Tucumán +54 9 381 123 4567  ->  "5493811234567"
-   - PRECIOS: 'price' de cada café (en pesos, por bolsa de 250 g).
-     Son valores de EJEMPLO; reemplazalos por los reales.
+   Los datos (productos, precios, WhatsApp, textos) viven en datos.js
+   y se editan fácil desde admin.html. Normalmente no toques nada acá.
    ===================================================================== */
-const WHATSAPP = "5493815555555";   // <-- TU NÚMERO REAL DE WHATSAPP
-const CURRENCY = "$";
+const DATA = window.MALLKU_DATA || { config:{}, orden:[], productos:{} };
+const CFG = DATA.config || {};
+const WHATSAPP = String(CFG.whatsapp || "5493813361950").replace(/\D/g,'');
+const CURRENCY = CFG.moneda || "$";
 
-const PRODUCTS = {
-  colombia: { name:"Colombia", region:"Huila",        accent:"var(--c-colombia)", notes:"Acidez alta · Cuerpo medio · Frutos rojos",        proceso:"Lavado",  altura:"1400–1800", tueste:"Medio",   price:9500  },
-  brasil:   { name:"Brasil",   region:"Minas Gerais",  accent:"var(--c-brasil)",   notes:"Chocolate · Caramelo · Castañas",                proceso:"Natural", altura:"1100–1300", tueste:"Medio +", price:8900  },
-  peru:     { name:"Perú",     region:"Cajamarca",     accent:"var(--c-peru)",     notes:"Chocolate · Durazno · Miel · Frutos secos",      proceso:"Lavado",  altura:"1800–2200", tueste:"Medio",   price:9900  },
-  kenya:    { name:"Kenya",    region:"Kirinyaga",     accent:"var(--c-kenya)",    notes:"Ciruela · Cítricos · Especias",                  proceso:"Lavado",  altura:"1600",      tueste:"Claro",   price:11500 },
-  honduras: { name:"Honduras", region:"Cantarranas",   accent:"var(--c-honduras)", notes:"Naranja · Azúcar morena · Final cremoso",        proceso:"Lavado",  altura:"1600",      tueste:"Medio –", price:9200  }
-};
-const ORDER = ["colombia","brasil","peru","kenya","honduras"];
+const PRODUCTS = DATA.productos || {};
+const ORDER = (DATA.orden && DATA.orden.length ? DATA.orden : Object.keys(PRODUCTS))
+                .filter(k => PRODUCTS[k] && PRODUCTS[k].visible !== false);
 const MOLIENDAS = ["Grano","Molido"];
 
-const fmt = n => CURRENCY + Number(n).toLocaleString('es-AR');
+const fmt = n => CURRENCY + Number(n||0).toLocaleString('es-AR');
+
+/* Cóndor para el placeholder cuando un café todavía no tiene foto */
+const CONDOR_SVG = `<svg viewBox="0 0 240 240" aria-hidden="true" fill="none"><path d="M32 172 L94 90 L120 126 C146 146 170 166 192 190 C166 181 136 167 112 157 C86 147 56 152 38 165 Z" fill="#F2E7DF"/><g stroke="#F2E7DF" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"><path d="M124 128 C152 122 174 120 190 114"/><path d="M116 112 C150 102 180 100 200 92"/><path d="M110 100 C146 86 178 82 197 76 C211 71 212 53 197 51 C186 49.5 185 60 194 62"/></g></svg>`;
+function phInner(p){ return `${CONDOR_SVG}<b>${p.name}</b><small>${p.region} · Foto próximamente</small>`; }
+function fotoHTML(p){
+  if(p.foto){
+    return `<img src="${p.foto}" alt="${p.name} ${p.region}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"><div class="ph" style="display:none">${phInner(p)}</div>`;
+  }
+  return `<div class="ph">${phInner(p)}</div>`;
+}
+
+/* Aplica textos y enlaces editables (WhatsApp, Instagram, títulos) */
+function applyConfig(){
+  const set = (sel, html) => { const el = document.querySelector(sel); if(el && html != null) el.innerHTML = html; };
+  set('#shopTitulo', CFG.tiendaTitulo);
+  set('#shopSub', CFG.tiendaSub);
+  set('#footerAbout', CFG.footerAbout);
+  document.querySelectorAll('a[href*="wa.me"]').forEach(a => { a.href = 'https://wa.me/' + WHATSAPP; });
+  if(CFG.instagram) document.querySelectorAll('a[href*="instagram.com"]').forEach(a => { a.href = CFG.instagram; });
+}
 
 /* ---------- Estado del carrito (localStorage) ---------- */
 const STORAGE_KEY = "mallku_cart_v1";
@@ -367,18 +390,20 @@ ORDER.forEach((key, i) => {
   card.style.transitionDelay = (i % 3) * 0.08 + 's';
   card.style.setProperty('--accent', p.accent);
   card.innerHTML = `
+    <div class="shop-photo">${fotoHTML(p)}</div>
     <div class="shop-stamp">
-      <div class="s-badge">Origen único · 250 g</div>
+      <div class="s-badge">Origen único · ${p.peso}</div>
       <h3>${p.name} <em>${p.region}</em></h3>
       <div class="s-notes">${p.notes}</div>
     </div>
     <div class="shop-body">
       <div class="shop-meta">
+        <div><span class="k">Variedad</span><span class="v">${p.variedad}</span></div>
         <div><span class="k">Proceso</span><span class="v">${p.proceso}</span></div>
-        <div><span class="k">Altura</span><span class="v">${p.altura} msnm</span></div>
+        <div><span class="k">Altura</span><span class="v">${p.altura}</span></div>
         <div><span class="k">Tueste</span><span class="v">${p.tueste}</span></div>
       </div>
-      <div class="shop-price">${fmt(p.price)} <small>/ bolsa 250 g</small></div>
+      <div class="shop-price">${fmt(p.precio)} <small>/ bolsa ${p.peso}</small></div>
       <div class="field-label">Molienda</div>
       <div class="molienda" data-key="${key}">
         ${MOLIENDAS.map((m,idx)=>`<button data-m="${m}" class="${idx===0?'active':''}">${m==='Grano'?'Grano entero':'Molido'}</button>`).join('')}
@@ -444,7 +469,7 @@ function changeQty(id, delta){
 }
 function removeLine(id){ cart = cart.filter(x => x.id !== id); saveCart(); renderCart(); }
 function cartCount(){ return cart.reduce((s,it)=>s+it.qty,0); }
-function cartTotal(){ return cart.reduce((s,it)=>s + PRODUCTS[it.key].price * it.qty, 0); }
+function cartTotal(){ return cart.reduce((s,it)=>s + ((PRODUCTS[it.key] && PRODUCTS[it.key].precio || 0) * it.qty), 0); }
 
 const badge = document.getElementById('cartBadge');
 const drawerBody = document.getElementById('drawerBody');
@@ -471,12 +496,13 @@ function renderCart(){
 
   drawerBody.innerHTML = cart.map(it => {
     const p = PRODUCTS[it.key];
+    if(!p) return '';
     return `
       <div class="line">
         <div class="line-thumb" data-i="${p.name.slice(0,3).toUpperCase()}" style="background:${p.accent}"></div>
         <div class="line-info">
           <h4>${p.name}</h4>
-          <div class="sub">${p.region} · ${it.molienda === 'Grano' ? 'Grano entero' : 'Molido'} · 250 g</div>
+          <div class="sub">${p.region} · ${it.molienda === 'Grano' ? 'Grano entero' : 'Molido'} · ${p.peso}</div>
           <div class="lq">
             <div class="mini">
               <button data-id="${it.id}" data-d="-1" aria-label="Restar">−</button>
@@ -486,7 +512,7 @@ function renderCart(){
           </div>
         </div>
         <div class="line-right">
-          <div class="lp">${fmt(p.price * it.qty)}</div>
+          <div class="lp">${fmt(p.precio * it.qty)}</div>
           <button class="rm" data-rm="${it.id}">Quitar</button>
         </div>
       </div>`;
@@ -522,7 +548,8 @@ checkoutBtn.addEventListener('click', () => {
   let msg = "¡Hola Mallku! ☕ Quiero hacer este pedido:\n\n";
   cart.forEach(it => {
     const p = PRODUCTS[it.key];
-    msg += `• ${it.qty}× ${p.name} – ${p.region} (${it.molienda === 'Grano' ? 'Grano entero' : 'Molido'}, 250 g) — ${fmt(p.price * it.qty)}\n`;
+    if(!p) return;
+    msg += `• ${it.qty}× ${p.name} – ${p.region} (${it.molienda === 'Grano' ? 'Grano entero' : 'Molido'}, ${p.peso}) — ${fmt(p.precio * it.qty)}\n`;
   });
   msg += `\nSubtotal: ${fmt(cartTotal())}`;
   if(name) msg += `\n\nNombre: ${name}`;
@@ -567,6 +594,7 @@ if(pre && PRODUCTS[pre]){
   }
 }
 
+applyConfig();
 document.getElementById('year').textContent = new Date().getFullYear();
 renderCart();
 </script>
