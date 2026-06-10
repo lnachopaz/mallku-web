@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
+import { authEnabled } from '../supabase'
 
 const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
 
-export default function Navbar({ paginaActual, navegar, totalItems, onCartClick }) {
+export default function Navbar({ paginaActual, navegar, totalItems, onCartClick, user, onUserClick }) {
   const [scrolled,    setScrolled]    = useState(false)
   const [menuAbierto, setMenuAbierto] = useState(false)
 
@@ -53,6 +54,7 @@ export default function Navbar({ paginaActual, navegar, totalItems, onCartClick 
                 <button onClick={() => navegar('inicio')}>Inicio</button>
                 <button onClick={() => { navegar('inicio'); setTimeout(() => scrollTo('origen'), 300) }}>Origen</button>
                 <button onClick={() => scrollTo('catalogo')}>Tienda</button>
+                <button onClick={() => { navegar('inicio'); setTimeout(() => scrollTo('negocios'), 300) }}>Negocios</button>
                 <button onClick={() => { navegar('inicio'); setTimeout(() => scrollTo('contacto'), 300) }}>Contacto</button>
               </>
             ) : (
@@ -60,6 +62,7 @@ export default function Navbar({ paginaActual, navegar, totalItems, onCartClick 
                 <a href="#origen"      onClick={(e) => { e.preventDefault(); scrollTo('origen') }}>Origen</a>
                 <a href="#cafes"       onClick={(e) => { e.preventDefault(); scrollTo('cafes') }}>Cafés</a>
                 <a href="#experiencia" onClick={(e) => { e.preventDefault(); scrollTo('experiencia') }}>Experiencia</a>
+                <a href="#negocios"    onClick={(e) => { e.preventDefault(); scrollTo('negocios') }}>Negocios</a>
                 <a href="#contacto"    onClick={(e) => { e.preventDefault(); scrollTo('contacto') }}>Contacto</a>
               </>
             )}
@@ -67,6 +70,18 @@ export default function Navbar({ paginaActual, navegar, totalItems, onCartClick 
 
           {/* CTA derecha */}
           <div className="nav-cta">
+            {authEnabled && (
+              <button className="user-btn" onClick={onUserClick} aria-label={user ? 'Mi cuenta' : 'Ingresar'} title={user ? 'Mi cuenta' : 'Ingresar'}>
+                {user ? (
+                  <span className="user-initial">{(user.email || '?').charAt(0).toUpperCase()}</span>
+                ) : (
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="8" r="3.6"/>
+                    <path d="M5 20c1.2-3.6 4-5.2 7-5.2s5.8 1.6 7 5.2" strokeLinecap="round"/>
+                  </svg>
+                )}
+              </button>
+            )}
             {esTienda ? (
               <button className="cart-btn" onClick={onCartClick} aria-label={`Carrito · ${totalItems} ítems`}>
                 <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -95,6 +110,7 @@ export default function Navbar({ paginaActual, navegar, totalItems, onCartClick 
             <button onClick={() => irYCerrar('inicio')}>Inicio</button>
             <button onClick={() => { irYCerrar('inicio'); setTimeout(() => scrollTo('origen'), 300) }}>Origen</button>
             <button onClick={() => { cerrarMenu(); setTimeout(() => scrollTo('catalogo'), 100) }}>Tienda</button>
+            <button onClick={() => { irYCerrar('inicio'); setTimeout(() => scrollTo('negocios'), 300) }}>Negocios</button>
             <button onClick={() => { irYCerrar('inicio'); setTimeout(() => scrollTo('contacto'), 300) }}>Contacto</button>
           </>
         ) : (
@@ -102,6 +118,7 @@ export default function Navbar({ paginaActual, navegar, totalItems, onCartClick 
             <button onClick={() => scrollYCerrar('origen')}>Origen</button>
             <button onClick={() => scrollYCerrar('cafes')}>Cafés</button>
             <button onClick={() => scrollYCerrar('experiencia')}>Experiencia</button>
+            <button onClick={() => scrollYCerrar('negocios')}>Negocios</button>
             <button onClick={() => scrollYCerrar('contacto')}>Contacto</button>
             <button className="btn btn-light" onClick={() => irYCerrar('tienda')}>Ir a la tienda</button>
           </>

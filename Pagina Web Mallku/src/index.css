@@ -59,6 +59,14 @@ p{ margin:0; }
 .cart-badge{ position:absolute; top:-5px; right:-5px; min-width:20px; height:20px; padding:0 5px; border-radius:12px; background:var(--espresso); color:var(--cream); font-size:11px; font-weight:600; display:flex; align-items:center; justify-content:center; transform:scale(0); transition:transform .4s var(--ease); }
 .cart-badge.show{ transform:scale(1); }
 
+/* Botón de cuenta de cliente */
+.user-btn{ position:relative; width:46px; height:46px; border-radius:50%; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; transition:all .45s var(--ease); }
+.user-btn:hover{ background:var(--siena); border-color:var(--siena); }
+.user-btn svg{ width:20px; height:20px; stroke:var(--espresso); fill:none; stroke-width:1.7; transition:stroke .4s; }
+.user-btn:hover svg{ stroke:var(--paper); }
+.user-initial{ font-family:'Playfair Display',serif; font-weight:600; font-size:17px; color:var(--espresso); transition:color .4s; }
+.user-btn:hover .user-initial{ color:var(--paper); }
+
 .nav-toggle{ display:none; width:40px; height:40px; position:relative; background:none; border:none; cursor:pointer; }
 .nav-toggle span{ position:absolute; left:9px; right:9px; height:1.6px; background:var(--espresso); transition:all .4s var(--ease); }
 .nav-toggle span:nth-child(1){ top:14px; } .nav-toggle span:nth-child(2){ top:20px; } .nav-toggle span:nth-child(3){ top:26px; }
@@ -224,6 +232,22 @@ p{ margin:0; }
 .cta-band h2{ color:var(--cream); font-size:clamp(34px,5vw,64px); margin:20px 0 34px; }
 .cta-band h2 em{ font-style:italic; color:var(--siena); }
 
+/* ── Negocios: Mayorista & Capacitaciones ────────────────── */
+.biz-grid{ display:grid; grid-template-columns:1fr 1fr; gap:26px; }
+.biz-card{ position:relative; background:var(--paper); border:1px solid var(--line-soft); border-radius:4px; padding:38px 34px 34px; overflow:hidden; display:flex; flex-direction:column; align-items:flex-start; transition:transform .55s var(--ease),box-shadow .55s var(--ease); }
+.biz-card::before{ content:""; position:absolute; top:0; left:0; right:0; height:4px; background:var(--siena); transform:scaleX(0); transform-origin:left; transition:transform .55s var(--ease); }
+.biz-card:hover{ transform:translateY(-8px); box-shadow:0 40px 60px -40px rgba(34,23,16,.45); }
+.biz-card:hover::before{ transform:scaleX(1); }
+.biz-icon{ width:54px; height:54px; border-radius:50%; background:var(--cream); border:1px solid var(--line-soft); display:flex; align-items:center; justify-content:center; margin-bottom:20px; }
+.biz-icon svg{ width:26px; height:26px; stroke:var(--siena); }
+.biz-tag{ font-size:10px; font-weight:600; letter-spacing:.22em; text-transform:uppercase; color:var(--siena); margin-bottom:12px; }
+.biz-card h3{ font-size:clamp(22px,2.2vw,28px); margin-bottom:14px; }
+.biz-card p{ color:var(--muted); font-size:15px; margin-bottom:18px; }
+.biz-list{ list-style:none; margin:0 0 26px; padding:0; display:flex; flex-direction:column; gap:9px; }
+.biz-list li{ position:relative; padding-left:22px; font-size:13.5px; color:var(--coffee); }
+.biz-list li::before{ content:"✦"; position:absolute; left:0; top:0; color:var(--siena); font-size:11px; }
+.biz-card .btn{ margin-top:auto; }
+
 /* ── Tienda hero ─────────────────────────────────────────── */
 .shop-hero{ padding:150px 0 50px; position:relative; overflow:hidden; }
 .shop-hero .eyebrow{ margin-bottom:20px; }
@@ -258,6 +282,16 @@ p{ margin:0; }
 .shop-price{ font-family:'Playfair Display',serif; font-size:28px; color:var(--espresso); display:flex; align-items:baseline; gap:7px; }
 .shop-price small{ font-family:'Montserrat',sans-serif; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:500; }
 .field-label{ font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--tan); margin-bottom:-6px; }
+.field-label .req{ color:var(--c-kenya); }
+
+/* Selector de molienda (obligatorio) */
+.select-wrap{ position:relative; }
+.select-wrap select{ width:100%; appearance:none; -webkit-appearance:none; background:var(--paper); border:1px solid var(--line); border-radius:3px; padding:12px 40px 12px 13px; font-family:inherit; font-size:12.5px; font-weight:500; color:var(--coffee); cursor:pointer; outline:none; transition:border-color .3s, box-shadow .3s; }
+.select-wrap select:focus{ border-color:var(--siena); }
+.select-wrap select:required:invalid{ color:var(--muted); }
+.select-wrap::after{ content:""; position:absolute; right:15px; top:50%; width:8px; height:8px; border-right:1.6px solid var(--roast); border-bottom:1.6px solid var(--roast); transform:translateY(-70%) rotate(45deg); pointer-events:none; }
+.select-wrap.warn select{ border-color:#B3402A; box-shadow:0 0 0 3px rgba(190,74,43,.14); }
+.select-hint{ font-size:11px; color:#B3402A; margin-top:-10px; }
 .molienda{ display:flex; gap:8px; }
 .molienda button{ flex:1; padding:10px; border:1px solid var(--line); border-radius:3px; font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); transition:all .4s var(--ease); }
 .molienda button.active{ background:var(--espresso); color:var(--cream); border-color:var(--espresso); }
@@ -315,6 +349,43 @@ p{ margin:0; }
 .wa-btn:disabled{ opacity:.45; pointer-events:none; }
 .clear-cart{ display:block; width:100%; text-align:center; margin-top:12px; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); transition:color .3s; }
 .clear-cart:hover{ color:var(--coffee); }
+
+/* ── Cuenta de cliente: modal de ingreso ─────────────────── */
+.auth-modal{ position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(.96); width:min(420px,92vw); max-height:92vh; overflow-y:auto; background:var(--paper); border-radius:6px; z-index:201; padding:42px 34px 34px; text-align:center; box-shadow:0 60px 120px -40px rgba(0,0,0,.6); opacity:0; visibility:hidden; transition:all .45s var(--ease); }
+.auth-modal.open{ opacity:1; visibility:visible; transform:translate(-50%,-50%) scale(1); }
+.auth-close{ position:absolute; top:14px; right:14px; }
+.auth-logo{ margin:0 auto 14px; }
+.auth-modal h3{ font-size:26px; }
+.auth-sub{ font-size:13.5px; color:var(--muted); margin:10px 0 24px; }
+.auth-google{ width:100%; display:flex; align-items:center; justify-content:center; gap:11px; padding:13px; border:1px solid var(--line); border-radius:3px; background:#fff; font-size:13px; font-weight:600; color:var(--coffee); transition:all .4s var(--ease); }
+.auth-google:hover{ border-color:var(--coffee); box-shadow:0 14px 24px -18px rgba(34,23,16,.5); }
+.auth-google svg{ width:18px; height:18px; }
+.auth-divider{ display:flex; align-items:center; gap:12px; margin:18px 0; color:var(--muted); font-size:11px; letter-spacing:.14em; text-transform:uppercase; }
+.auth-divider::before,.auth-divider::after{ content:""; flex:1; height:1px; background:var(--line-soft); }
+.auth-form{ display:flex; flex-direction:column; gap:10px; }
+.auth-form input{ width:100%; background:#fff; border:1px solid var(--line); border-radius:3px; padding:13px; font-family:inherit; font-size:13.5px; color:var(--coffee); outline:none; transition:border-color .3s; }
+.auth-form input:focus{ border-color:var(--siena); }
+.auth-form .btn{ justify-content:center; }
+.auth-note{ font-size:11.5px; color:var(--muted); margin-top:12px; }
+.auth-ok{ background:var(--cream); border:1px solid var(--line-soft); border-radius:4px; padding:20px; font-size:13.5px; color:var(--coffee); line-height:1.7; }
+.auth-ok b{ display:block; font-family:'Playfair Display',serif; font-size:17px; color:var(--espresso); margin-bottom:6px; }
+.auth-error{ margin-top:14px; font-size:12px; color:#B3402A; }
+
+/* ── Cuenta de cliente: panel "Mi cuenta" ────────────────── */
+.acc-section{ padding:18px 0 22px; border-bottom:1px solid var(--line-soft); }
+.acc-title{ font-family:'Montserrat',sans-serif; font-size:11px; font-weight:600; letter-spacing:.2em; text-transform:uppercase; color:var(--siena); margin:0 0 8px; }
+.acc-hint{ font-size:12.5px; color:var(--muted); margin:0 0 14px; }
+.acc-form{ display:flex; flex-direction:column; gap:10px; }
+.acc-form input{ width:100%; background:var(--paper); border:1px solid var(--line); border-radius:3px; padding:11px 13px; font-family:inherit; font-size:13px; color:var(--coffee); outline:none; transition:border-color .3s; }
+.acc-form input:focus{ border-color:var(--siena); }
+.acc-save{ justify-content:center; padding:13px; }
+.acc-pedidos{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:12px; }
+.acc-pedidos li{ background:var(--cream); border:1px solid var(--line-soft); border-radius:4px; padding:13px 15px; }
+.acc-pedido-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px; }
+.acc-pedido-head .f{ font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+.acc-pedido-head b{ font-family:'Playfair Display',serif; font-size:16px; color:var(--espresso); }
+.acc-pedido-items{ display:flex; flex-direction:column; gap:2px; font-size:12.5px; color:var(--coffee); }
+.acc-logout{ margin-top:0; }
 
 /* ── Footer ──────────────────────────────────────────────── */
 .footer{ background:#1A120C; color:#C8B8A6; padding:clamp(64px,8vw,100px) 0 40px; position:relative; }
@@ -374,6 +445,7 @@ p{ margin:0; }
   .nav-mobile.open a:nth-child(3),.nav-mobile.open button:nth-child(3){ transition-delay:.20s; }
   .nav-mobile.open a:nth-child(4),.nav-mobile.open button:nth-child(4){ transition-delay:.26s; }
   .nav-mobile.open a:nth-child(5),.nav-mobile.open button:nth-child(5){ transition-delay:.32s; }
+  .nav-mobile.open a:nth-child(6),.nav-mobile.open button:nth-child(6){ transition-delay:.38s; }
   .nav-mobile .btn{ margin-top:22px; transition-delay:.4s; }
   .hero-grid{ grid-template-columns:1fr; gap:10px; }
   .hero-visual{ order:-1; height:420px; margin-bottom:10px; }
@@ -381,6 +453,7 @@ p{ margin:0; }
   .philo{ grid-template-columns:1fr; }
   .philo-visual{ max-width:380px; }
   .exp{ grid-template-columns:1fr; }
+  .biz-grid{ grid-template-columns:1fr; }
   .footer-grid-4{ grid-template-columns:1fr 1fr; gap:34px; }
   .footer-grid-3{ grid-template-columns:1fr; gap:32px; }
 }

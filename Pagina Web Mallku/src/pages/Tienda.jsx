@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { CFG, fmt, COFFEES, ORDER } from '../config'
+import { CFG, fmt, COFFEES, ORDER, MOLIENDAS } from '../config'
 
 function useReveal() {
   const ref = useRef(null)
@@ -16,13 +16,15 @@ function useReveal() {
   return ref
 }
 
-// ── Tarjeta de producto (fiel al tienda.html) ─────────────────
+// ── Tarjeta de producto ───────────────────────────────────────
 function TarjetaProducto({ producto, index, agregarAlCarrito }) {
-  const [molienda, setMolienda] = useState('Grano')
+  const [molienda, setMolienda] = useState('')
   const [qty,      setQty]      = useState(1)
   const [added,    setAdded]    = useState(false)
+  const [warn,     setWarn]     = useState(false)
 
   const handleAgregar = () => {
+    if (!molienda) { setWarn(true); return }
     agregarAlCarrito({
       id:       `${producto.key}__${molienda}`,
       key:      producto.key,
@@ -68,14 +70,19 @@ function TarjetaProducto({ producto, index, agregarAlCarrito }) {
           {fmt(producto.price)} <small>/ bolsa 250 g</small>
         </div>
 
-        <div className="field-label">Molienda</div>
-        <div className="molienda">
-          {['Grano','Molido'].map((m) => (
-            <button key={m} className={molienda===m?'active':''} onClick={() => setMolienda(m)}>
-              {m==='Grano'?'Grano entero':'Molido'}
-            </button>
-          ))}
+        <div className="field-label">Molienda <span className="req">*</span></div>
+        <div className={`select-wrap${warn && !molienda ? ' warn' : ''}`}>
+          <select
+            value={molienda}
+            onChange={(e) => { setMolienda(e.target.value); setWarn(false) }}
+            aria-label="Elegí el tipo de molienda"
+            required
+          >
+            <option value="" disabled>Elegí tu molienda…</option>
+            {MOLIENDAS.map((m) => <option key={m} value={m}>{m}</option>)}
+          </select>
         </div>
+        {warn && !molienda && <div className="select-hint">Elegí la molienda para poder agregarlo.</div>}
 
         <div className="row">
           <div className="qty">
@@ -105,7 +112,7 @@ export default function Tienda({ agregarAlCarrito }) {
           <span className="eyebrow" data-reveal>Tienda · Tostado en Tucumán</span>
           <h1 data-reveal style={{ transitionDelay:'.08s' }}>Elegí tu <em>altura</em>.</h1>
           <p data-reveal style={{ transitionDelay:'.16s' }}>
-            Café de especialidad tostado en pequeños lotes. Seleccioná tu origen, en grano entero o molido para tu método, y armá tu pedido.
+            Café de especialidad tostado en pequeños lotes. Seleccioná tu origen, la molienda exacta para tu método, y armá tu pedido.
           </p>
           <div className="infobar" data-reveal style={{ transitionDelay:'.24s' }}>
             <div>
@@ -140,7 +147,7 @@ export default function Tienda({ agregarAlCarrito }) {
             {ORDER.map((key, i) => (
               <TarjetaProducto
                 key={key}
-                producto={COFFEES[key]}
+                producto={{ ...COFFEES[key], key }}
                 index={i}
                 agregarAlCarrito={agregarAlCarrito}
               />
@@ -158,7 +165,7 @@ export default function Tienda({ agregarAlCarrito }) {
                 <img className="mark" src="/img/logo.png" alt="" width="42" height="42" />
                 <span className="word"><b>Mallku</b><span>TOSTADORES DE CAFÉ</span></span>
               </div>
-              <p className="f-about">Café de especialidad tostado con altura en Tucumán, Argentina. Granos seleccionados de orígenes que vuelan tan alto como el cóndor.</p>
+              <p className="f-about">Café de especialidad tostado con precisión en Tucumán, Argentina. Granos seleccionados en origen, con el espíritu de las cumbres en cada lote.</p>
               <div className="socials">
                 <a href={CFG.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram">
                   <svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.9.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s0 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58 0-4.85-.07c-1.17-.05-1.8-.25-2.23-.41a3.7 3.7 0 0 1-1.38-.9 3.7 3.7 0 0 1-.9-1.38c-.16-.42-.36-1.06-.41-2.23C2.21 15.58 2.2 15.2 2.2 12s0-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.21 8.8 2.2 12 2.2zm0 1.8c-3.14 0-3.5 0-4.74.07-.9.04-1.38.19-1.7.32-.43.16-.74.36-1.06.68-.32.32-.52.63-.68 1.06-.13.32-.28.8-.32 1.7C3.8 8.5 3.8 8.86 3.8 12s0 3.5.07 4.74c.04.9.19 1.38.32 1.7.16.43.36.74.68 1.06.32.32.63.52 1.06.68.32.13.8.28 1.7.32 1.24.07 1.6.07 4.74.07s3.5 0 4.74-.07c.9-.04 1.38-.19 1.7-.32.43-.16.74-.36 1.06-.68.32-.32.52-.63.68-1.06.13-.32.28-.8.32-1.7.07-1.24.07-1.6.07-4.74s0-3.5-.07-4.74c-.04-.9-.19-1.38-.32-1.7a2.85 2.85 0 0 0-.68-1.06 2.85 2.85 0 0 0-1.06-.68c-.32-.13-.8-.28-1.7-.32C15.5 4 15.14 4 12 4zm0 3.06A4.94 4.94 0 1 1 12 17a4.94 4.94 0 0 1 0-9.88zm0 1.8a3.14 3.14 0 1 0 0 6.28 3.14 3.14 0 0 0 0-6.28zM17.84 6.6a1.15 1.15 0 1 1 0 2.3 1.15 1.15 0 0 1 0-2.3z"/></svg>

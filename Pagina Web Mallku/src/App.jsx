@@ -1,13 +1,39 @@
-import { useState } from 'react'
-import Navbar     from './components/Navbar'
-import CartDrawer from './components/CartDrawer'
-import Inicio     from './pages/Inicio'
-import Tienda     from './pages/Tienda'
+import { useState, useEffect } from 'react'
+import Navbar        from './components/Navbar'
+import CartDrawer    from './components/CartDrawer'
+import AuthModal     from './components/AuthModal'
+import AccountDrawer from './components/AccountDrawer'
+import Inicio        from './pages/Inicio'
+import Tienda        from './pages/Tienda'
+import { supabase }  from './supabase'
 
 export default function App() {
   const [paginaActual,  setPaginaActual]  = useState('inicio')
   const [carrito,       setCarrito]       = useState([])
   const [drawerAbierto, setDrawerAbierto] = useState(false)
+
+  /* ── Cuenta de cliente (Supabase) ── */
+  const [user,         setUser]         = useState(null)
+  const [perfil,       setPerfil]       = useState(null)
+  const [authAbierto,  setAuthAbierto]  = useState(false)
+  const [cuentaAbierta, setCuentaAbierta] = useState(false)
+
+  useEffect(() => {
+    if (!supabase) return
+    supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null))
+    const { data: sub } = supabase.auth.onAuthStateChange((_evento, session) => {
+      setUser(session?.user ?? null)
+      if (session?.user) setAuthAbierto(false)
+    })
+    return () => sub.subscription.unsubscribe()
+  }, [])
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza el perfil con la sesión (sistema externo)
+    if (!supabase || !user) { setPerfil(null); return }
+    supabase.from('perfiles').select('*').eq('id', user.id).maybeSingle()
+      .then(({ data }) => setPerfil(data ?? null))
+  }, [user])
 
   const navegar = (pagina) => {
     setPaginaActual(pagina)
@@ -49,6 +75,8 @@ export default function App() {
         navegar={navegar}
         totalItems={totalItems}
         onCartClick={() => setDrawerAbierto(true)}
+        user={user}
+        onUserClick={() => (user ? setCuentaAbierta(true) : setAuthAbierto(true))}
       />
 
       <main>
@@ -64,6 +92,21 @@ export default function App() {
         removeLine={removeLine}
         clearCart={clearCart}
         cartTotal={cartTotal}
+        user={user}
+        perfil={perfil}
+      />
+
+      <AuthModal
+        isOpen={authAbierto}
+        onClose={() => setAuthAbierto(false)}
+      />
+
+      <AccountDrawer
+        isOpen={cuentaAbierta}
+        onClose={() => setCuentaAbierta(false)}
+        user={user}
+        perfil={perfil}
+        onPerfilSaved={setPerfil}
       />
     </>
   )

@@ -7,6 +7,15 @@ export const CFG = {
 
 export const fmt = (n) => CFG.moneda + Number(n || 0).toLocaleString('es-AR')
 
+/* Opciones técnicas de molienda (selector obligatorio en la tienda) */
+export const MOLIENDAS = [
+  'Grano Entero',
+  'Espresso',
+  'Moka Italiana / Volturno',
+  'Filtrados / V60',
+  'Prensa Francesa',
+]
+
 export const COFFEES = {
   colombia: { name: 'Colombia', region: 'Huila', foto: '/img/colombia.jpg', continent: 'america', accent: 'var(--c-colombia)', notes: 'Acidez alta · Cuerpo medio · Frutos rojos', variedad: 'Caturra & Castillo', proceso: 'Lavado', altura: '1400–1800', tueste: 'Medio', price: 19000, desc: 'Un perfil vibrante y jugoso. La acidez alta y los frutos rojos lo vuelven brillante; el cuerpo medio lo mantiene equilibrado y fácil de disfrutar.', levels: { tueste: 50, acidez: 88, cuerpo: 55, intensidad: 62 } },
   brasil: { name: 'Brasil', region: 'Minas Gerais', foto: '/img/brasil.jpg', continent: 'america', accent: 'var(--c-brasil)', notes: 'Chocolate · Caramelo · Castañas', variedad: 'Catuaí Rojo', proceso: 'Natural', altura: '1100–1300', tueste: 'Medio +', price: 18000, desc: 'Dulce, redondo y reconfortante. Proceso natural que aporta chocolate y caramelo, con un cuerpo untuoso ideal para espresso y métodos con leche.', levels: { tueste: 72, acidez: 35, cuerpo: 86, intensidad: 80 } },

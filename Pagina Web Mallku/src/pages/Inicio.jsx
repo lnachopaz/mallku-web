@@ -106,6 +106,9 @@ export default function Inicio({ navegar }) {
   const activeCoffee  = COFFEES[activeKey]
   const filteredOrder = ORDER.filter((k) => filter === 'todos' || COFFEES[k].continent === filter)
 
+  const waMayorista = `https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent('¡Hola Mallku! Tengo una cafetería y quiero recibir el catálogo mayorista y asesoramiento técnico (post-cosecha / calibración).')}`
+  const waCursos    = `https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent('¡Hola Mallku! Quiero información y reservar mi lugar en los próximos cursos, talleres o catas guiadas.')}`
+
   return (
     <div ref={pageRef}>
 
@@ -122,10 +125,10 @@ export default function Inicio({ navegar }) {
           <div className="hero-copy">
             <span className="eyebrow" data-reveal>Café de especialidad · Tostado en Tucumán</span>
             <h1 className="hero-title" data-reveal style={{ transitionDelay:'.08s' }}>
-              El origen del <em>café de especialidad</em>.
+              La <em>ciencia del origen</em> en cada taza.
             </h1>
             <p className="hero-sub" data-reveal style={{ transitionDelay:'.16s' }}>
-              Granos de altura, tostados en pequeños lotes. Mallku es el vuelo del cóndor sobre los Andes: la búsqueda de la cima en cada taza.
+              Granos de altura, tostados en pequeños lotes. Mallku es la montaña sagrada de los Andes: el espíritu que custodia las cumbres y guía nuestra búsqueda de lo excepcional.
             </p>
             <div className="hero-actions" data-reveal style={{ transitionDelay:'.24s' }}>
               <button className="btn btn-primary" onClick={() => document.getElementById('cafes')?.scrollIntoView({ behavior:'smooth' })}>
@@ -177,7 +180,7 @@ export default function Inicio({ navegar }) {
       {/* ══ FILOSOFÍA / ORIGEN ════════════════════════════════ */}
       <section className="section" id="origen">
         <div className="wrap philo">
-          {/* Visual con cóndor */}
+          {/* Visual con el sello Mallku */}
           <div className="philo-visual" data-reveal>
             <div className="float-circle"/>
             <img
@@ -195,13 +198,13 @@ export default function Inicio({ navegar }) {
           <div className="philo-copy">
             <span className="eyebrow" data-reveal>Filosofía</span>
             <h2 data-reveal style={{ transitionDelay:'.08s' }}>
-              Mallku, el <em>señor de las alturas</em>.
+              Mallku: el <em>espíritu de las cumbres</em>.
             </h2>
             <p data-reveal style={{ transitionDelay:'.14s' }}>
-              <span className="drop">En lengua andina, <strong>Mallku</strong> es el cóndor</span>: guardián de las cumbres, símbolo de las alturas que separan lo común de lo excepcional. Ese mismo espíritu guía cada grano que seleccionamos.
+              <span className="drop">En la cosmología andina, <strong>Mallku</strong> es la montaña sagrada</span>: el espíritu divino que custodia las alturas y conecta lo terrenal con lo excepcional. Ese mismo respeto por el origen guía nuestra selección.
             </p>
             <p data-reveal style={{ transitionDelay:'.20s' }}>
-              El café de especialidad nace en altura. Entre los 1400 y 2200 msnm el grano madura lento, gana densidad y desarrolla la complejidad que se siente en taza: acidez vibrante, cuerpo definido y notas que cuentan su origen. Nosotros lo honramos con un <strong>tueste artesanal en pequeños lotes</strong>, en el corazón de Tucumán.
+              El café de especialidad nace en la altura: entre los 1400 y 2200 msnm, el grano madura lento, ganando densidad y una complejidad química única. Honramos esa nobleza con un <strong>tueste de precisión en pequeños lotes</strong>, directo en el corazón de Tucumán.
             </p>
             <div className="stats">
               <div className="stat" data-reveal style={{ transitionDelay:'.10s' }}><b>1400–2200</b><span>msnm de altura</span></div>
@@ -328,6 +331,63 @@ export default function Inicio({ navegar }) {
         </div>
       </section>
 
+      {/* ══ NEGOCIOS: MAYORISTA & CAPACITACIONES ══════════════ */}
+      <section className="section alt" id="negocios">
+        <div className="wrap">
+          <div className="section-head" data-reveal>
+            <span className="eyebrow">Mallku para negocios</span>
+            <h2>Más allá de la taza.</h2>
+            <p>Acompañamos a cafeterías con soporte técnico real, y a los curiosos del café con formación y experiencias de cata.</p>
+          </div>
+
+          <div className="biz-grid">
+            {/* Mayorista & Soporte Técnico */}
+            <article className="biz-card" id="mayorista" data-reveal>
+              <div className="biz-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M7 3h10l-2 7H9z"/>
+                  <path d="M9 10v4a3 3 0 0 0 6 0v-4"/>
+                  <path d="M10.5 17h3v4h-3z"/>
+                </svg>
+              </div>
+              <span className="biz-tag">Mayorista & soporte técnico</span>
+              <h3>¿Tenés una cafetería? Llevá Mallku a tu tolva.</h3>
+              <p>Precios mayoristas, tostado fresco programado para tu barra y acompañamiento técnico de verdad para que cada extracción salga a la altura.</p>
+              <ul className="biz-list">
+                <li>Catálogo mayorista y precios por volumen</li>
+                <li>Consultoría post-cosecha y control de calidad</li>
+                <li>Calibración de molinos y recetas de extracción</li>
+              </ul>
+              <a className="btn btn-primary" href={waMayorista} target="_blank" rel="noopener noreferrer">
+                Pedir catálogo mayorista <span className="arrow">→</span>
+              </a>
+            </article>
+
+            {/* Capacitaciones & Experiencias */}
+            <article className="biz-card" id="capacitaciones" data-reveal style={{ transitionDelay:'.1s' }}>
+              <div className="biz-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 8h11v6a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4z"/>
+                  <path d="M16 9h2.5a2.5 2.5 0 0 1 0 5H16"/>
+                  <path d="M8 4.5c0 1-.8 1.3-.8 2.3M11.5 4.5c0 1-.8 1.3-.8 2.3"/>
+                </svg>
+              </div>
+              <span className="biz-tag">Capacitaciones & experiencias</span>
+              <h3>Aprendé el ritual: cursos, talleres y catas guiadas.</h3>
+              <p>Formación en barismo desde cero, talleres de métodos y catas guiadas de nuestros orígenes. Cupos limitados y preventa exclusiva de cada fecha.</p>
+              <ul className="biz-list">
+                <li>Cursos de barismo (inicial y avanzado)</li>
+                <li>Talleres de métodos: espresso, V60, prensa</li>
+                <li>Catas guiadas y eventos especiales</li>
+              </ul>
+              <a className="btn btn-primary" href={waCursos} target="_blank" rel="noopener noreferrer">
+                Reservar mi lugar <span className="arrow">→</span>
+              </a>
+            </article>
+          </div>
+        </div>
+      </section>
+
       {/* ══ CTA BAND ══════════════════════════════════════════ */}
       <section className="cta-band">
         <div className="ghost-word">Mallku</div>
@@ -352,7 +412,7 @@ export default function Inicio({ navegar }) {
                 <img className="mark" src="/img/logo.png" alt="" width="42" height="42" />
                 <span className="word"><b>Mallku</b><span>TOSTADORES DE CAFÉ</span></span>
               </button>
-              <p className="f-about">Café de especialidad tostado con altura en Tucumán, Argentina. Granos seleccionados de orígenes que vuelan tan alto como el cóndor.</p>
+              <p className="f-about">Café de especialidad tostado con precisión en Tucumán, Argentina. Granos seleccionados en origen, con el espíritu de las cumbres en cada lote.</p>
               <div className="socials">
                 <a href={CFG.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram">
                   <svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.9.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s0 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58 0-4.85-.07c-1.17-.05-1.8-.25-2.23-.41a3.7 3.7 0 0 1-1.38-.9 3.7 3.7 0 0 1-.9-1.38c-.16-.42-.36-1.06-.41-2.23C2.21 15.58 2.2 15.2 2.2 12s0-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.21 8.8 2.2 12 2.2zm0 1.8c-3.14 0-3.5 0-4.74.07-.9.04-1.38.19-1.7.32-.43.16-.74.36-1.06.68-.32.32-.52.63-.68 1.06-.13.32-.28.8-.32 1.7C3.8 8.5 3.8 8.86 3.8 12s0 3.5.07 4.74c.04.9.19 1.38.32 1.7.16.43.36.74.68 1.06.32.32.63.52 1.06.68.32.13.8.28 1.7.32 1.24.07 1.6.07 4.74.07s3.5 0 4.74-.07c.9-.04 1.38-.19 1.7-.32.43-.16.74-.36 1.06-.68.32-.32.52-.63.68-1.06.13-.32.28-.8.32-1.7.07-1.24.07-1.6.07-4.74s0-3.5-.07-4.74c-.04-.9-.19-1.38-.32-1.7a2.85 2.85 0 0 0-.68-1.06 2.85 2.85 0 0 0-1.06-.68c-.32-.13-.8-.28-1.7-.32C15.5 4 15.14 4 12 4zm0 3.06A4.94 4.94 0 1 1 12 17a4.94 4.94 0 0 1 0-9.88zm0 1.8a3.14 3.14 0 1 0 0 6.28 3.14 3.14 0 0 0 0-6.28zM17.84 6.6a1.15 1.15 0 1 1 0 2.3 1.15 1.15 0 0 1 0-2.3z"/></svg>
@@ -373,6 +433,7 @@ export default function Inicio({ navegar }) {
                 <li><button onClick={() => document.getElementById('origen')?.scrollIntoView({ behavior:'smooth' })}>Origen</button></li>
                 <li><button onClick={() => document.getElementById('cafes')?.scrollIntoView({ behavior:'smooth' })}>Cafés</button></li>
                 <li><button onClick={() => document.getElementById('experiencia')?.scrollIntoView({ behavior:'smooth' })}>Experiencia</button></li>
+                <li><button onClick={() => document.getElementById('negocios')?.scrollIntoView({ behavior:'smooth' })}>Mayorista & Cursos</button></li>
                 <li><button onClick={() => window.scrollTo({ top:0, behavior:'smooth' })}>Inicio</button></li>
               </ul>
             </div>

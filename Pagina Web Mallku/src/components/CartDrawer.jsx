@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { CFG, fmt, COFFEES } from '../config'
+import { supabase } from '../supabase'
 
-export default function CartDrawer({ isOpen, onClose, carrito, changeQty, removeLine, clearCart, cartTotal }) {
+export default function CartDrawer({ isOpen, onClose, carrito, changeQty, removeLine, clearCart, cartTotal, user, perfil }) {
   const [nombre, setNombre] = useState('')
   const [nota,   setNota]   = useState('')
 
@@ -16,19 +17,40 @@ export default function CartDrawer({ isOpen, onClose, carrito, changeQty, remove
     return () => { document.body.style.overflow = '' }
   }, [isOpen])
 
+  /* Si el cliente está logueado, precargamos su nombre */
+  useEffect(() => {
+    if (!nombre && (perfil?.nombre || user?.user_metadata?.full_name)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- precarga el nombre del cliente logueado
+      setNombre(perfil?.nombre || user.user_metadata.full_name)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, perfil])
+
   const totalItems = carrito.reduce((s, x) => s + x.qty, 0)
 
   const checkout = () => {
     if (!carrito.length) return
     let msg = '¡Hola Mallku! ☕ Quiero hacer este pedido:\n\n'
     carrito.forEach((it) => {
-      const m = it.molienda === 'Grano' ? 'Grano entero' : 'Molido'
-      msg += `• ${it.qty}× ${it.name} – ${it.region} (${m}, 250 g) — ${fmt(it.price * it.qty)}\n`
+      msg += `• ${it.qty}× ${it.name} – ${it.region} (${it.molienda}, 250 g) — ${fmt(it.price * it.qty)}\n`
     })
     msg += `\nSubtotal: ${fmt(cartTotal)}`
     if (nombre) msg += `\n\nNombre: ${nombre}`
+    if (perfil?.direccion) msg += `\nDirección: ${perfil.direccion}${perfil.ciudad ? `, ${perfil.ciudad}` : ''}`
     if (nota)   msg += `\nNota: ${nota}`
     msg += '\n\n(Pedido generado desde la web)'
+
+    /* Si está logueado, guardamos el pedido en su historial (sin bloquear el checkout) */
+    if (supabase && user) {
+      supabase.from('pedidos').insert({
+        user_id: user.id,
+        items:   carrito.map(({ key, name, region, molienda, qty, price }) => ({ key, name, region, molienda, qty, price })),
+        total:   cartTotal,
+        nombre:  nombre || null,
+        nota:    nota || null,
+      }).then(({ error }) => { if (error) console.warn('No se pudo guardar el pedido:', error.message) })
+    }
+
     window.open(`https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent(msg)}`, '_blank')
   }
 
@@ -64,13 +86,13 @@ export default function CartDrawer({ isOpen, onClose, carrito, changeQty, remove
               ) : (
                 <div
                   className="line-thumb"
-                  data-i={it.name.slice(0, 3).toUpperCase()}
+                  data-i={(it.name || '?').slice(0, 3).toUpperCase()}
                   style={{ background: it.accent }}
                 />
               )}
               <div className="line-info">
                 <h4>{it.name}</h4>
-                <div className="sub">{it.region} · {it.molienda === 'Grano' ? 'Grano entero' : 'Molido'} · 250 g</div>
+                <div className="sub">{it.region} · {it.molienda} · 250 g</div>
                 <div className="lq">
                   <div className="mini">
                     <button onClick={() => changeQty(it.id, -1)} aria-label="Restar">−</button>
