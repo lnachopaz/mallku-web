@@ -541,9 +541,9 @@ p{ margin:0; }
   .hero{ min-height:80vh; }
   .hero-photo-content{ padding-top:170px; }
   .hero-title{ white-space:normal; font-size:clamp(30px,6vw,44px); }
-  /* En celular se usa la foto vertical (corazón + bolsas): encuadre centrado,
-     un poco hacia arriba para que las bolsas queden bien en cuadro */
-  .hero-photo-bg img{ object-position:50% 32%; }
+  /* En celular se usa la foto de la bolsa en alto con el embalse de fondo:
+     encuadre centrado en la bolsa */
+  .hero-photo-bg img{ object-position:52% 45%; }
   .philo{ grid-template-columns:1fr; }
   .philo-visual{ max-width:380px; margin-inline:auto; }
   .exp{ grid-template-columns:1fr; }
@@ -561,17 +561,15 @@ p{ margin:0; }
     margin-inline:calc(clamp(20px,5vw,64px) * -1);
     padding-inline:clamp(20px,5vw,64px);
     padding-block:6px 22px;
-    /* "proximity" en vez de "mandatory": el snap obligatorio se peleaba con el
-       scroll vertical de la página y la trababa al pasar el dedo sobre las tarjetas */
-    scroll-snap-type:x proximity;
-    scroll-padding-inline:clamp(20px,5vw,64px);
+    /* Sin scroll-snap: hasta el modo "proximity" seguía trabando a veces el
+       scroll vertical de la página al pasar el dedo sobre las tarjetas.
+       El carrusel queda con deslizamiento libre (momentum nativo). */
     overscroll-behavior-x:contain;
     touch-action:pan-x pan-y;
     -webkit-overflow-scrolling:touch;
     scrollbar-width:none;
   }
   .grid::-webkit-scrollbar{ display:none; }
-  .grid .card{ scroll-snap-align:start; }
   /* En el carrusel mobile la tarjeta expandida mantiene su lugar y
      el perfil se apila debajo (no salta al inicio) */
   .grid .card.expanded{ grid-column:auto; order:0; }
