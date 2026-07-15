@@ -103,6 +103,10 @@ export default function Navbar({ totalItems, onCartClick, user, onUserClick }) {
         <Link to="/experiencia" onClick={cerrarMenu}>Experiencia</Link>
         <Link to="/mayorista" onClick={cerrarMenu}>Mayorista</Link>
         <button onClick={() => scrollYCerrar('contacto')}>Contacto</button>
+        {/* En mobile el CTA del navbar se oculta: este es el acceso a la tienda */}
+        <Link className="btn btn-primary" to="/tienda" onClick={cerrarMenu}>
+          Ir a la tienda <span className="arrow">→</span>
+        </Link>
       </div>
     </>
   )

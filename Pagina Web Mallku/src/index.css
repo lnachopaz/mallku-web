@@ -314,7 +314,7 @@ p{ margin:0; }
 .infobar svg{ width:20px; height:20px; stroke:var(--siena); fill:none; stroke-width:1.7; }
 
 /* ── Tienda catálogo ─────────────────────────────────────── */
-.shop{ padding:30px 0 clamp(80px,11vw,140px); }
+.shop{ padding:30px 0 clamp(56px,7vw,96px); }
 .shop-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:28px; }
 .shop-card{ background:var(--paper); border:1px solid var(--line-soft); border-radius:6px; overflow:hidden; display:flex; flex-direction:column; transition:transform .55s var(--ease),box-shadow .55s var(--ease); }
 .shop-card:hover{ transform:translateY(-8px); box-shadow:0 44px 64px -44px rgba(34,23,16,.5); }
@@ -533,15 +533,18 @@ p{ margin:0; }
   .nav-mobile.open a:nth-child(4),.nav-mobile.open button:nth-child(4){ transition-delay:.26s; }
   .nav-mobile.open a:nth-child(5),.nav-mobile.open button:nth-child(5){ transition-delay:.32s; }
   .nav-mobile.open a:nth-child(6),.nav-mobile.open button:nth-child(6){ transition-delay:.38s; }
-  .nav-mobile .btn{ margin-top:22px; transition-delay:.4s; }
+  .nav-mobile .btn{ margin-top:22px; transition-delay:.4s; font-family:'Work Sans',sans-serif; font-size:14px; font-weight:600; letter-spacing:.14em; padding:16px 30px; color:var(--paper); }
   .hero-grid{ grid-template-columns:1fr; gap:10px; }
   .hero-visual{ order:-1; height:420px; margin-bottom:10px; }
   .bag-photo{ width:198px; }
   .hero{ min-height:80vh; }
   .hero-photo-content{ padding-top:170px; }
   .hero-title{ white-space:normal; font-size:clamp(30px,6vw,44px); }
+  /* En pantallas angostas el encuadre 0% dejaría la bolsa fuera de cuadro:
+     volvemos a centrar un poco la foto */
+  .hero-photo-bg img{ object-position:25% 42%; }
   .philo{ grid-template-columns:1fr; }
-  .philo-visual{ max-width:380px; }
+  .philo-visual{ max-width:380px; margin-inline:auto; }
   .exp{ grid-template-columns:1fr; }
   .biz-grid{ grid-template-columns:1fr; }
   .footer-grid-4{ grid-template-columns:1fr 1fr; gap:34px; }
@@ -574,6 +577,28 @@ p{ margin:0; }
   .footer-grid-4 .f-about{ grid-column:1/-1; }
   .stats{ gap:10px; }
   .stat{ min-width:calc(50% - 5px); }
+
+  /* Marca más compacta en el navbar */
+  .nav-inner{ height:72px; }
+  .nav.scrolled .nav-inner{ height:62px; }
+  .brand .mark{ width:36px; height:36px; }
+  .brand .word b{ font-size:21px; }
+
+  /* La infobar de la tienda se apila en columna */
+  .infobar{ flex-direction:column; gap:13px; align-items:flex-start; }
+
+  /* Tarjetas de proceso y modal con menos padding en pantallas chicas */
+  .paso-card{ padding:26px 22px 24px; }
+  .molienda-modal{ padding:28px 20px 24px; }
+
+  /* iOS hace zoom automático al enfocar campos con fuente <16px: lo evitamos */
+  .select-wrap select, .drawer input, .drawer textarea, .news input{ font-size:16px; }
+}
+
+/* En pantallas táctiles no hay hover: el hint "Ver perfil" de las
+   tarjetas de café se muestra siempre */
+@media (hover:none){
+  .card-flip-hint{ opacity:1; transform:none; }
 }
 /* ── Nosotros: pasos del proceso ─────────────────────────── */
 .pasos-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:24px; }
@@ -688,7 +713,8 @@ p{ margin:0; }
 
 @media (max-width:760px){
   .pasos-grid{ grid-template-columns:1fr; }
-  .cart-toast{ bottom:18px; width:calc(100vw - 32px); }
+  /* El toast sube para no chocar con el botón flotante de WhatsApp */
+  .cart-toast{ bottom:84px; width:calc(100vw - 32px); }
   .cart-toast .ct-btn{ padding:9px 12px; }
 }
 
