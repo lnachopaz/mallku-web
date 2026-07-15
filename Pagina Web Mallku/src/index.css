@@ -82,6 +82,7 @@ p{ margin:0; }
 /* ── HERO (foto fija de fondo) ──────────────────────────── */
 .hero{ position:relative; min-height:92vh; display:flex; align-items:center; overflow:hidden; padding:0; }
 .hero-photo-bg{ position:absolute; inset:0; z-index:0; }
+.hero-photo-bg picture{ position:absolute; inset:0; display:block; }
 .hero-photo-bg img{ width:100%; height:100%; object-fit:cover; object-position:0% 42%; transform:scale(1.1); animation:hero-kenburns 24s ease-in-out infinite alternate; }
 .hero-photo-overlay{ position:absolute; inset:0; background:linear-gradient(180deg,rgba(20,13,8,.18) 0%,rgba(20,13,8,.32) 45%,rgba(20,13,8,.86) 100%); }
 @keyframes hero-kenburns{ from{ transform:scale(1.03); } to{ transform:scale(1.16); } }
@@ -540,9 +541,9 @@ p{ margin:0; }
   .hero{ min-height:80vh; }
   .hero-photo-content{ padding-top:170px; }
   .hero-title{ white-space:normal; font-size:clamp(30px,6vw,44px); }
-  /* En pantallas angostas el encuadre 0% dejaría la bolsa fuera de cuadro:
-     volvemos a centrar un poco la foto */
-  .hero-photo-bg img{ object-position:25% 42%; }
+  /* En celular se usa la foto vertical (corazón + bolsas): encuadre centrado,
+     un poco hacia arriba para que las bolsas queden bien en cuadro */
+  .hero-photo-bg img{ object-position:50% 32%; }
   .philo{ grid-template-columns:1fr; }
   .philo-visual{ max-width:380px; margin-inline:auto; }
   .exp{ grid-template-columns:1fr; }
@@ -560,8 +561,12 @@ p{ margin:0; }
     margin-inline:calc(clamp(20px,5vw,64px) * -1);
     padding-inline:clamp(20px,5vw,64px);
     padding-block:6px 22px;
-    scroll-snap-type:x mandatory;
+    /* "proximity" en vez de "mandatory": el snap obligatorio se peleaba con el
+       scroll vertical de la página y la trababa al pasar el dedo sobre las tarjetas */
+    scroll-snap-type:x proximity;
     scroll-padding-inline:clamp(20px,5vw,64px);
+    overscroll-behavior-x:contain;
+    touch-action:pan-x pan-y;
     -webkit-overflow-scrolling:touch;
     scrollbar-width:none;
   }
@@ -651,10 +656,12 @@ p{ margin:0; }
 .cd-close{ position:absolute; top:0; right:0; width:34px; height:34px; border-radius:50%; border:1px solid var(--line); color:var(--muted); font-size:13px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .3s var(--ease); background:none; }
 .cd-close:hover{ border-color:var(--espresso); color:var(--espresso); transform:rotate(90deg); }
 
+@keyframes detail-in-down{ from{ opacity:0; transform:translateY(-16px); } to{ opacity:1; transform:none; } }
 @media (max-width:900px){
   .card.expanded{ flex-direction:column; }
   .card.expanded .card-main{ flex:none; }
-  .card-detail{ padding-left:0; padding-top:24px; border-left:none; border-top:1px solid var(--line-soft); }
+  /* En mobile el perfil se apila debajo: la animación es hacia abajo */
+  .card-detail{ padding-left:0; padding-top:24px; border-left:none; border-top:1px solid var(--line-soft); animation-name:detail-in-down; }
 }
 
 /* ── Nosotros: fotos en secciones Historia / Fundadora ───── */

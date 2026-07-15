@@ -180,11 +180,15 @@ export default function Inicio() {
       <section className="hero" id="inicio">
         {/* Foto fija de fondo */}
         <div className="hero-photo-bg">
-          <img
-            src="/img/hero-full-manos-prensa.webp"
-            alt="Bolsa de café Mallku Colombia junto a una prensa francesa, con las sierras de Tucumán de fondo"
-            fetchPriority="high"
-          />
+          {/* En celular usamos una foto vertical donde las bolsas son protagonistas */}
+          <picture>
+            <source media="(max-width:860px)" srcSet="/img/hero-corazon-bolsas.webp" />
+            <img
+              src="/img/hero-full-manos-prensa.webp"
+              alt="Bolsas de café Mallku al aire libre, con las sierras de Tucumán de fondo"
+              fetchPriority="high"
+            />
+          </picture>
           <div className="hero-photo-overlay" aria-hidden="true" />
         </div>
 
