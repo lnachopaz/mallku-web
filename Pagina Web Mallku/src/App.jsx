@@ -1,16 +1,32 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import Navbar        from './components/Navbar'
 import CartDrawer    from './components/CartDrawer'
 import AuthModal     from './components/AuthModal'
 import AccountDrawer from './components/AccountDrawer'
+import WhatsAppFloat from './components/WhatsAppFloat'
 import Inicio        from './pages/Inicio'
 import Tienda        from './pages/Tienda'
+import SobreNosotros from './pages/SobreNosotros'
+import Experiencia   from './pages/Experiencia'
+import Mayorista     from './pages/Mayorista'
 import { supabase }  from './supabase'
+import { COFFEES }   from './config'
+
+/* Al cambiar de ruta, la página nueva arranca siempre desde arriba */
+function ScrollToTop() {
+  const { pathname } = useLocation()
+  useEffect(() => { window.scrollTo({ top: 0, behavior: 'instant' }) }, [pathname])
+  return null
+}
 
 export default function App() {
-  const [paginaActual,  setPaginaActual]  = useState('inicio')
   const [carrito,       setCarrito]       = useState([])
   const [drawerAbierto, setDrawerAbierto] = useState(false)
+
+  /* Toast "agregado al carrito": aviso sutil en vez de abrir el carrito de golpe */
+  const [toast, setToast] = useState(null)
+  const toastTimer = useRef(null)
 
   /* ── Cuenta de cliente (Supabase) ── */
   const [user,         setUser]         = useState(null)
@@ -35,11 +51,6 @@ export default function App() {
       .then(({ data }) => setPerfil(data ?? null))
   }, [user])
 
-  const navegar = (pagina) => {
-    setPaginaActual(pagina)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-
   // item: { id, key, name, region, accent, molienda, qty, price }
   const agregarAlCarrito = (item) => {
     setCarrito((prev) => {
@@ -51,7 +62,15 @@ export default function App() {
       }
       return [...prev, item]
     })
-    setDrawerAbierto(true)
+    // Aviso sutil, sin interrumpir la navegación
+    clearTimeout(toastTimer.current)
+    setToast({
+      name:    item.name,
+      detalle: item.variante ?? `${item.molienda} · 250 g`,
+      qty:     item.qty,
+      foto:    COFFEES[item.key]?.foto || item.foto || null,
+    })
+    toastTimer.current = setTimeout(() => setToast(null), 3600)
   }
 
   const changeQty  = (id, delta) =>
@@ -67,12 +86,12 @@ export default function App() {
   const cartTotal  = carrito.reduce((s, x) => s + x.price * x.qty, 0)
 
   return (
-    <>
+    <BrowserRouter>
       <div className="grain" aria-hidden="true" />
 
+      <ScrollToTop />
+
       <Navbar
-        paginaActual={paginaActual}
-        navegar={navegar}
         totalItems={totalItems}
         onCartClick={() => setDrawerAbierto(true)}
         user={user}
@@ -80,8 +99,13 @@ export default function App() {
       />
 
       <main>
-        {paginaActual === 'inicio' && <Inicio navegar={navegar} />}
-        {paginaActual === 'tienda' && <Tienda agregarAlCarrito={agregarAlCarrito} />}
+        <Routes>
+          <Route path="/"               element={<Inicio />} />
+          <Route path="/tienda"         element={<Tienda agregarAlCarrito={agregarAlCarrito} />} />
+          <Route path="/sobre-nosotros" element={<SobreNosotros />} />
+          <Route path="/experiencia"    element={<Experiencia />} />
+          <Route path="/mayorista"      element={<Mayorista />} />
+        </Routes>
       </main>
 
       <CartDrawer
@@ -108,6 +132,31 @@ export default function App() {
         perfil={perfil}
         onPerfilSaved={setPerfil}
       />
-    </>
+
+      {/* Toast: producto agregado al carrito */}
+      <div className={`cart-toast${toast ? ' show' : ''}`} role="status" aria-live="polite">
+        {toast && (
+          <>
+            {toast.foto ? (
+              <img className="ct-photo" src={toast.foto} alt="" />
+            ) : (
+              <span className="ct-check" aria-hidden="true">✓</span>
+            )}
+            <div className="ct-info">
+              <b>{toast.qty > 1 ? `${toast.qty}× ` : ''}{toast.name}</b>
+              <span>{toast.detalle} · agregado al carrito</span>
+            </div>
+            <button
+              className="ct-btn"
+              onClick={() => { clearTimeout(toastTimer.current); setToast(null); setDrawerAbierto(true) }}
+            >
+              Ver carrito
+            </button>
+          </>
+        )}
+      </div>
+
+      <WhatsAppFloat />
+    </BrowserRouter>
   )
 }

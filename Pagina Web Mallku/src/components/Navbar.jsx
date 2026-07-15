@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { authEnabled } from '../supabase'
 
 const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
 
-export default function Navbar({ paginaActual, navegar, totalItems, onCartClick, user, onUserClick }) {
+export default function Navbar({ totalItems, onCartClick, user, onUserClick }) {
   const [scrolled,    setScrolled]    = useState(false)
   const [menuAbierto, setMenuAbierto] = useState(false)
+  const { pathname }  = useLocation()
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 40)
@@ -31,10 +33,13 @@ export default function Navbar({ paginaActual, navegar, totalItems, onCartClick,
     document.body.style.overflow = next ? 'hidden' : ''
   }
 
-  const irYCerrar = (pagina) => { navegar(pagina); cerrarMenu() }
   const scrollYCerrar = (id) => { cerrarMenu(); setTimeout(() => scrollTo(id), 100) }
 
-  const esTienda = paginaActual === 'tienda'
+  // Cierra el menú mobile cada vez que cambia de página (sincroniza con el router, no con estado interno)
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { cerrarMenu() }, [pathname])
+
+  const esTienda  = pathname === '/tienda'
 
   return (
     <>
@@ -42,30 +47,18 @@ export default function Navbar({ paginaActual, navegar, totalItems, onCartClick,
         <div className="wrap nav-inner">
 
           {/* Logo */}
-          <button className="brand" onClick={() => navegar('inicio')} aria-label="Mallku inicio">
-            <img className="mark" src="/img/logo.png" alt="" width="42" height="42" />
+          <Link className="brand" to="/" aria-label="Mallku inicio">
+            <img className="mark" src="/img/logo-mark.png" alt="" width="42" height="42" />
             <span className="word"><b>Mallku</b><span>TOSTADORES DE CAFÉ</span></span>
-          </button>
+          </Link>
 
           {/* Links desktop */}
           <nav className="nav-links" aria-label="Navegación principal">
-            {esTienda ? (
-              <>
-                <button onClick={() => navegar('inicio')}>Inicio</button>
-                <button onClick={() => { navegar('inicio'); setTimeout(() => scrollTo('origen'), 300) }}>Origen</button>
-                <button onClick={() => scrollTo('catalogo')}>Tienda</button>
-                <button onClick={() => { navegar('inicio'); setTimeout(() => scrollTo('negocios'), 300) }}>Negocios</button>
-                <button onClick={() => { navegar('inicio'); setTimeout(() => scrollTo('contacto'), 300) }}>Contacto</button>
-              </>
-            ) : (
-              <>
-                <a href="#origen"      onClick={(e) => { e.preventDefault(); scrollTo('origen') }}>Origen</a>
-                <a href="#cafes"       onClick={(e) => { e.preventDefault(); scrollTo('cafes') }}>Cafés</a>
-                <a href="#experiencia" onClick={(e) => { e.preventDefault(); scrollTo('experiencia') }}>Experiencia</a>
-                <a href="#negocios"    onClick={(e) => { e.preventDefault(); scrollTo('negocios') }}>Negocios</a>
-                <a href="#contacto"    onClick={(e) => { e.preventDefault(); scrollTo('contacto') }}>Contacto</a>
-              </>
-            )}
+            <Link to="/">Inicio</Link>
+            <Link to="/sobre-nosotros">Nosotros</Link>
+            <Link to="/experiencia">Experiencia</Link>
+            <Link to="/mayorista">Mayorista</Link>
+            <a href="#contacto" onClick={(e) => { e.preventDefault(); scrollTo('contacto') }}>Contacto</a>
           </nav>
 
           {/* CTA derecha */}
@@ -88,12 +81,12 @@ export default function Navbar({ paginaActual, navegar, totalItems, onCartClick,
                   <path d="M6 7h12l1.2 12.2a1 1 0 0 1-1 1.1H5.8a1 1 0 0 1-1-1.1L6 7z" strokeLinejoin="round"/>
                   <path d="M9 7a3 3 0 0 1 6 0" strokeLinecap="round"/>
                 </svg>
-                <span className={`cart-badge${totalItems > 0 ? ' show' : ''}`}>{totalItems}</span>
+                <span key={totalItems} className={`cart-badge${totalItems > 0 ? ' show' : ''}`}>{totalItems}</span>
               </button>
             ) : (
-              <button className="btn btn-primary" onClick={() => navegar('tienda')}>
+              <Link className="btn btn-primary" to="/tienda">
                 Ir a la tienda <span className="arrow">→</span>
-              </button>
+              </Link>
             )}
             <button className="nav-toggle" onClick={toggleMenu} aria-label="Abrir menú" aria-expanded={menuAbierto}>
               <span/><span/><span/>
@@ -105,24 +98,11 @@ export default function Navbar({ paginaActual, navegar, totalItems, onCartClick,
 
       {/* Menú mobile */}
       <div className={`nav-mobile${menuAbierto ? ' open' : ''}`} aria-hidden={!menuAbierto}>
-        {esTienda ? (
-          <>
-            <button onClick={() => irYCerrar('inicio')}>Inicio</button>
-            <button onClick={() => { irYCerrar('inicio'); setTimeout(() => scrollTo('origen'), 300) }}>Origen</button>
-            <button onClick={() => { cerrarMenu(); setTimeout(() => scrollTo('catalogo'), 100) }}>Tienda</button>
-            <button onClick={() => { irYCerrar('inicio'); setTimeout(() => scrollTo('negocios'), 300) }}>Negocios</button>
-            <button onClick={() => { irYCerrar('inicio'); setTimeout(() => scrollTo('contacto'), 300) }}>Contacto</button>
-          </>
-        ) : (
-          <>
-            <button onClick={() => scrollYCerrar('origen')}>Origen</button>
-            <button onClick={() => scrollYCerrar('cafes')}>Cafés</button>
-            <button onClick={() => scrollYCerrar('experiencia')}>Experiencia</button>
-            <button onClick={() => scrollYCerrar('negocios')}>Negocios</button>
-            <button onClick={() => scrollYCerrar('contacto')}>Contacto</button>
-            <button className="btn btn-light" onClick={() => irYCerrar('tienda')}>Ir a la tienda</button>
-          </>
-        )}
+        <Link to="/" onClick={cerrarMenu}>Inicio</Link>
+        <Link to="/sobre-nosotros" onClick={cerrarMenu}>Nosotros</Link>
+        <Link to="/experiencia" onClick={cerrarMenu}>Experiencia</Link>
+        <Link to="/mayorista" onClick={cerrarMenu}>Mayorista</Link>
+        <button onClick={() => scrollYCerrar('contacto')}>Contacto</button>
       </div>
     </>
   )

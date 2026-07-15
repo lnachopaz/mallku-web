@@ -32,7 +32,8 @@ export default function CartDrawer({ isOpen, onClose, carrito, changeQty, remove
     if (!carrito.length) return
     let msg = '¡Hola Mallku! ☕ Quiero hacer este pedido:\n\n'
     carrito.forEach((it) => {
-      msg += `• ${it.qty}× ${it.name} – ${it.region} (${it.molienda}, 250 g) — ${fmt(it.price * it.qty)}\n`
+      const detalle = it.variante ? it.variante : `${it.region} (${it.molienda}, 250 g)`
+      msg += `• ${it.qty}× ${it.name} – ${detalle} — ${fmt(it.price * it.qty)}\n`
     })
     msg += `\nSubtotal: ${fmt(cartTotal)}`
     if (nombre) msg += `\n\nNombre: ${nombre}`
@@ -44,7 +45,7 @@ export default function CartDrawer({ isOpen, onClose, carrito, changeQty, remove
     if (supabase && user) {
       supabase.from('pedidos').insert({
         user_id: user.id,
-        items:   carrito.map(({ key, name, region, molienda, qty, price }) => ({ key, name, region, molienda, qty, price })),
+        items:   carrito.map(({ key, name, region, molienda, variante, qty, price }) => ({ key, name, region, molienda, variante, qty, price })),
         total:   cartTotal,
         nombre:  nombre || null,
         nota:    nota || null,
@@ -79,9 +80,9 @@ export default function CartDrawer({ isOpen, onClose, carrito, changeQty, remove
           ) : carrito.map((it) => (
             <div className="line-item" key={it.id}>
               {/* miniatura: foto real del producto (con iniciales como respaldo) */}
-              {COFFEES[it.key]?.foto ? (
+              {(COFFEES[it.key]?.foto || it.foto) ? (
                 <div className="line-thumb has-photo">
-                  <img src={COFFEES[it.key].foto} alt="" loading="lazy" />
+                  <img src={COFFEES[it.key]?.foto || it.foto} alt="" loading="lazy" />
                 </div>
               ) : (
                 <div
@@ -92,7 +93,7 @@ export default function CartDrawer({ isOpen, onClose, carrito, changeQty, remove
               )}
               <div className="line-info">
                 <h4>{it.name}</h4>
-                <div className="sub">{it.region} · {it.molienda} · 250 g</div>
+                <div className="sub">{it.variante ? it.variante : `${it.region} · ${it.molienda} · 250 g`}</div>
                 <div className="lq">
                   <div className="mini">
                     <button onClick={() => changeQty(it.id, -1)} aria-label="Restar">−</button>

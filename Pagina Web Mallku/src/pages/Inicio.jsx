@@ -1,14 +1,9 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
-import { CFG, fmt, COFFEES, ORDER } from '../config'
+import { useState, useEffect, useRef } from 'react'
+import { flushSync } from 'react-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { CFG, COFFEES, ORDER } from '../config'
 
 // ── SVG helpers ──────────────────────────────────────────────
-const Bean = ({ cls }) => (
-  <svg className={`bean ${cls}`} viewBox="0 0 44 60">
-    <ellipse cx="22" cy="30" rx="16" ry="27" fill="#4E3220"/>
-    <path d="M22 6 C13 18 31 42 22 54" stroke="#2C1B10" strokeWidth="2.4" fill="none" strokeLinecap="round"/>
-  </svg>
-)
-
 const IcTueste     = () => <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3c2 3 4 4.5 4 8a4 4 0 0 1-8 0c0-1.5.7-2.8 1.5-3.7C10 8.5 11 6 12 3z"/></svg>
 const IcAcidez     = () => <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3c3.5 4 6 6.6 6 10a6 6 0 0 1-12 0c0-3.4 2.5-6 6-10z"/></svg>
 const IcCuerpo     = () => <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M5 8h11v5a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z"/><path d="M16 9h2.5a2.5 2.5 0 0 1 0 5H16"/><path d="M7 5c0-1 .5-1.5.5-2.5M11 5c0-1 .5-1.5.5-2.5"/></svg>
@@ -24,6 +19,113 @@ const LEVELS = [
 
 function wordFor(v){ if(v<35) return 'Bajo'; if(v<55) return 'Medio'; if(v<78) return 'Alto'; return 'Muy alto'; }
 
+// ── Tarjeta de café: al hacer clic se estira a toda la fila (order:-1 la manda
+// al inicio de la grilla y el resto se reordena después) mostrando el perfil ──
+// La clase "in" (animación de aparición) la maneja React acá adentro, NO el observer global:
+// si la agregara el observer con classList, React la pisaría al re-renderizar la tarjeta
+// (al expandir/cerrar) y la tarjeta desaparecería. Además así las tarjetas que se montan
+// de nuevo al cambiar de filtro también se animan bien.
+function TarjetaCafe({ c, keyName, index, expanded, onToggle, irATienda }) {
+  const cardRef = useRef(null)
+  const [revealed, setRevealed] = useState(false)
+
+  useEffect(() => {
+    const el = cardRef.current
+    if (!el) return
+    const io = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { setRevealed(true); io.disconnect() } },
+      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+
+  // Al expandirse la tarjeta se mueve al inicio de la grilla: la acompañamos con
+  // scroll suave DESPUÉS de que termine la view transition (~600ms), para no pelearle
+  useEffect(() => {
+    if (!expanded) return
+    const t = setTimeout(() => cardRef.current?.scrollIntoView({ behavior:'smooth', block:'nearest' }), 650)
+    return () => clearTimeout(t)
+  }, [expanded])
+
+  return (
+    <article
+      ref={cardRef}
+      className={`card${expanded ? ' expanded' : ''}${revealed ? ' in' : ''}`}
+      data-reveal="self"
+      data-continent={c.continent}
+      style={{ '--accent': c.accent, transitionDelay: `${(index % 3) * 0.09}s`, viewTransitionName: `card-${keyName}` }}
+    >
+      <div className="card-main">
+        <div className="card-top">
+          <span className="card-badge">Origen único</span>
+          <span className="card-num">0{ORDER.indexOf(keyName) + 1}</span>
+        </div>
+
+        <figure className="card-photo" onClick={() => onToggle(keyName)}>
+          <img className="ph-main" src={c.foto} alt={`Bolsa de café Mallku ${c.name} · ${c.region}`} loading="lazy" />
+          <img className="ph-nota" src={c.notaFoto} alt={`Nota de cata de ${c.name}`} loading="lazy" />
+          <span className="card-flip-hint"><IcNotas /> {expanded ? 'Cerrar perfil' : 'Ver perfil'}</span>
+        </figure>
+
+        <h3>{c.name} <em>{c.region}</em></h3>
+        <p className="card-desc">{c.desc}</p>
+
+        <div className="card-notes">
+          <span className="eyebrow-mini">Notas de cata</span>
+          <p className="notes-text">{c.notes}</p>
+        </div>
+
+        <div className="meta">
+          <div><span className="k">Proceso</span><span className="v">{c.proceso}</span></div>
+          <div><span className="k">Altura</span><span className="v">{c.altura} msnm</span></div>
+          <div><span className="k">Tueste</span><span className="v">{c.tueste}</span></div>
+        </div>
+
+        <div className="card-actions">
+          <button className="card-perfil" onClick={() => onToggle(keyName)}>
+            {expanded ? 'Cerrar perfil' : 'Ver perfil'} <span>{expanded ? '✕' : '→'}</span>
+          </button>
+          <button className="card-buy" onClick={irATienda}>
+            Comprar
+          </button>
+        </div>
+      </div>
+
+      {/* Perfil completo: aparece suave a la derecha al expandir */}
+      {expanded && (
+        <div className="card-detail">
+          <button className="cd-close" onClick={() => onToggle(keyName)} aria-label="Cerrar perfil">✕</button>
+          <span className="eyebrow-mini">El perfil</span>
+          <h4 className="cd-name">{c.name}</h4>
+          <div className="cd-region">{c.region}</div>
+          <p className="cd-desc">{c.desc}</p>
+
+          <div className="exp-icons">
+            <div className="ic"><IcNotas/><div><small>Notas</small><b>{c.notaPrincipal}</b></div></div>
+            <div className="ic"><IcTueste/><div><small>Tueste</small><b>{c.tueste}</b></div></div>
+            <div className="ic"><IcCuerpo/><div><small>Proceso</small><b>{c.proceso}</b></div></div>
+          </div>
+
+          <div className="bars cd-bars">
+            {LEVELS.map(({ key, label, Icon }) => (
+              <div className="bar" key={key}>
+                <div className="bar-head">
+                  <span className="name"><Icon/>{label}</span>
+                  <span className="val">{wordFor(c.levels[key])}</span>
+                </div>
+                <div className="track">
+                  <div className="fill" style={{ '--w': `${c.levels[key]}%` }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </article>
+  )
+}
+
 // ── Reveal hook ──────────────────────────────────────────────
 function useReveal(ref) {
   useEffect(() => {
@@ -33,201 +135,108 @@ function useReveal(ref) {
     )
     const el = ref.current
     if(!el) return
-    el.querySelectorAll('[data-reveal]').forEach((n) => io.observe(n))
+    // Las tarjetas de café ([data-reveal="self"]) manejan su propia aparición con estado de React
+    el.querySelectorAll('[data-reveal]:not([data-reveal="self"])').forEach((n) => io.observe(n))
     return () => io.disconnect()
   }, [ref])
 }
 
 // ── Componente principal ─────────────────────────────────────
-export default function Inicio({ navegar }) {
-  const pageRef      = useRef(null)
-  const heroVisRef   = useRef(null)
-  const barsRef      = useRef(null)
+export default function Inicio() {
+  const navigate = useNavigate()
+  const pageRef  = useRef(null)
 
   const [filter,      setFilter]      = useState('todos')
-  const [activeKey,   setActiveKey]   = useState('colombia')
-  const [barsVisible, setBarsVisible] = useState(false)
+  const [expandedKey, setExpandedKey] = useState(null)  // café con el perfil abierto
   const [newsOk,      setNewsOk]      = useState(false)
 
   useReveal(pageRef)
 
-  // Parallax hero
-  useEffect(() => {
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion:reduce)').matches
-    if(reduceMotion) return
-    let scrollY = 0, mouseX = 0, mouseY = 0
-    const els = heroVisRef.current?.querySelectorAll('[data-parallax]') || []
-
-    const apply = () => {
-      els.forEach((el) => {
-        const depth = parseFloat(el.dataset.parallax)
-        const ty  = scrollY * depth * 0.6
-        const mx  = mouseX * depth * 30
-        const my  = mouseY * depth * 22
-        const base = el.classList.contains('bag') || el.classList.contains('bag-photo') ? 'rotate(-2.5deg)' : ''
-        el.style.transform = `translate3d(${mx}px,${ty - my}px,0) ${base}`
-      })
+  // Anima el reacomodo de las tarjetas con la View Transitions API: el navegador
+  // "fotografía" el antes y el después y desliza cada tarjeta a su nueva posición.
+  // En navegadores sin soporte, simplemente aplica el cambio directo.
+  const conTransicion = (update) => {
+    if (document.startViewTransition) {
+      document.startViewTransition(() => flushSync(update))
+    } else {
+      update()
     }
-    const onScroll = () => { scrollY = window.scrollY; apply() }
-    const onMove   = (e) => {
-      const r = heroVisRef.current.getBoundingClientRect()
-      mouseX = ((e.clientX - r.left) / r.width - 0.5) * 2
-      mouseY = ((e.clientY - r.top)  / r.height - 0.5) * 2
-      apply()
-    }
-    const onLeave  = () => { mouseX = 0; mouseY = 0; apply() }
+  }
 
-    window.addEventListener('scroll', onScroll, { passive: true })
-    heroVisRef.current?.addEventListener('mousemove', onMove)
-    heroVisRef.current?.addEventListener('mouseleave', onLeave)
-    return () => {
-      window.removeEventListener('scroll', onScroll)
-      heroVisRef.current?.removeEventListener('mousemove', onMove)
-      heroVisRef.current?.removeEventListener('mouseleave', onLeave)
-    }
-  }, [])
+  const toggleCoffee = (key) =>
+    conTransicion(() => setExpandedKey((prev) => (prev === key ? null : key)))
 
-  // Observer para animar barras
-  useEffect(() => {
-    if(!barsRef.current) return
-    const io = new IntersectionObserver(
-      ([e]) => { if(e.isIntersecting) setBarsVisible(true) },
-      { threshold: 0.3 }
-    )
-    io.observe(barsRef.current)
-    return () => io.disconnect()
-  }, [])
+  const cambiarFiltro = (val) =>
+    conTransicion(() => { setFilter(val); setExpandedKey(null) })
 
-  const selectCoffee = useCallback((key, scroll = false) => {
-    setActiveKey(key)
-    if(scroll) document.getElementById('experiencia')?.scrollIntoView({ behavior:'smooth' })
-  }, [])
+  const irATienda = () => navigate('/tienda')
 
-  const activeCoffee  = COFFEES[activeKey]
   const filteredOrder = ORDER.filter((k) => filter === 'todos' || COFFEES[k].continent === filter)
-
-  const waMayorista = `https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent('¡Hola Mallku! Tengo una cafetería y quiero recibir el catálogo mayorista y asesoramiento técnico (post-cosecha / calibración).')}`
-  const waCursos    = `https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent('¡Hola Mallku! Quiero información y reservar mi lugar en los próximos cursos, talleres o catas guiadas.')}`
 
   return (
     <div ref={pageRef}>
 
       {/* ══ HERO ══════════════════════════════════════════════ */}
       <section className="hero" id="inicio">
-        {/* Cresta montañosa SVG */}
-        <svg className="hero-bg-ridge" viewBox="0 0 1440 320" preserveAspectRatio="none" aria-hidden="true">
-          <path fill="#E4DAC6" d="M0,220 L240,120 L420,200 L660,80 L900,210 L1140,110 L1320,190 L1440,150 L1440,320 L0,320 Z"/>
-          <path fill="#D8CBB2" opacity=".7" d="M0,260 L280,180 L520,250 L780,160 L1020,250 L1280,180 L1440,240 L1440,320 L0,320 Z"/>
-        </svg>
+        {/* Foto fija de fondo */}
+        <div className="hero-photo-bg">
+          <img
+            src="/img/hero-full-manos-prensa.webp"
+            alt="Bolsa de café Mallku Colombia junto a una prensa francesa, con las sierras de Tucumán de fondo"
+            fetchPriority="high"
+          />
+          <div className="hero-photo-overlay" aria-hidden="true" />
+        </div>
 
-        <div className="wrap hero-grid">
-          {/* Texto */}
-          <div className="hero-copy">
-            <span className="eyebrow" data-reveal>Café de especialidad · Tostado en Tucumán</span>
-            <h1 className="hero-title" data-reveal style={{ transitionDelay:'.08s' }}>
-              La <em>ciencia del origen</em> en cada taza.
-            </h1>
-            <p className="hero-sub" data-reveal style={{ transitionDelay:'.16s' }}>
-              Granos de altura, tostados en pequeños lotes. Mallku es la montaña sagrada de los Andes: el espíritu que custodia las cumbres y guía nuestra búsqueda de lo excepcional.
-            </p>
-            <div className="hero-actions" data-reveal style={{ transitionDelay:'.24s' }}>
-              <button className="btn btn-primary" onClick={() => document.getElementById('cafes')?.scrollIntoView({ behavior:'smooth' })}>
-                Descubrí nuestros cafés <span className="arrow">→</span>
-              </button>
-              <button className="btn btn-ghost" onClick={() => document.getElementById('origen')?.scrollIntoView({ behavior:'smooth' })}>
-                Nuestra historia
-              </button>
-            </div>
-            <div className="hero-scroll" data-reveal style={{ transitionDelay:'.36s' }}>
-              <span className="line"/>
-              Bajá para explorar
-            </div>
+        <div className="wrap hero-photo-content">
+          <span className="eyebrow" data-reveal>Café de especialidad</span>
+          <h1 className="hero-title" data-reveal style={{ transitionDelay:'.08s' }}>
+            Tostado en Tucumán<br/> <em>Hecho para explorar</em>
+          </h1>
+          <p className="hero-sub" data-reveal style={{ transitionDelay:'.16s' }}>
+            Creemos en el café que te hace pausar y respirar hondo. Seleccionamos granos excepcionales de todo el mundo y los tostamos con paciencia en Yerba Buena, buscando resaltar su dulzor natural y su frescura. Un café limpio y lleno de vida, pensado tanto para tu cocina de todos los días como para tu próxima aventura al aire libre.
+          </p>
+          <div className="hero-actions" data-reveal style={{ transitionDelay:'.24s' }}>
+            <button className="btn btn-primary" onClick={() => document.getElementById('cafes')?.scrollIntoView({ behavior:'smooth' })}>
+              Descubrí nuestros cafés <span className="arrow">→</span>
+            </button>
+            <Link className="btn btn-light" to="/sobre-nosotros">
+              Nuestra historia
+            </Link>
           </div>
-
-          {/* Visual */}
-          <div className="hero-visual" ref={heroVisRef} id="heroVisual">
-            <div className="glow"  data-parallax="0.05"/>
-            <div className="ring"  data-parallax="0.03"/>
-            <div className="ring r2" data-parallax="0.02"/>
-
-            {/* Bolsa real */}
-            <div className="bag-photo" data-parallax="0.12">
-              <img
-                src="/img/hero-bag.webp"
-                alt="Bolsa de café de especialidad Mallku · Colombia, Huila"
-                fetchPriority="high"
-              />
-              <div className="bag-shadow" aria-hidden="true"/>
-            </div>
-
-            {/* Granos flotantes */}
-            <Bean cls="b1" data-parallax="0.18"/>
-            <Bean cls="b2" data-parallax="0.22"/>
-            <Bean cls="b3" data-parallax="0.15"/>
-            <Bean cls="b4" data-parallax="0.26"/>
+          <div className="hero-scroll" data-reveal style={{ transitionDelay:'.36s' }}>
+            <span className="line"/>
+            Bajá para explorar
           </div>
         </div>
       </section>
 
-      {/* ══ MARQUEE ═══════════════════════════════════════════ */}
+      {/* ══ MARQUEE (cinta infinita: dos grupos idénticos, cada uno se desplaza -100% de su propio ancho) ══ */}
       <div className="strip" aria-hidden="true">
         <div className="marquee">
-          <span>Colombia</span><span>Brasil</span><span>Perú</span><span>Kenya</span><span>Honduras</span>
-          <span>Colombia</span><span>Brasil</span><span>Perú</span><span>Kenya</span><span>Honduras</span>
+          {[0, 1].map((g) => (
+            <div className="marquee-group" key={g}>
+              {[...ORDER, ...ORDER].map((k, i) => (
+                <span key={`${k}-${i}`}>{COFFEES[k].name} · {COFFEES[k].region}</span>
+              ))}
+            </div>
+          ))}
         </div>
       </div>
-
-      {/* ══ FILOSOFÍA / ORIGEN ════════════════════════════════ */}
-      <section className="section" id="origen">
-        <div className="wrap philo">
-          {/* Visual con el sello Mallku */}
-          <div className="philo-visual" data-reveal>
-            <div className="float-circle"/>
-            <img
-              className="logo-seal"
-              src="/img/logo.png"
-              alt="Logo de Mallku · Tostadores de Café"
-              loading="lazy"
-            />
-            <div className="alt-tag">
-              <div><b>1400–2200</b><small>msnm · altura de cultivo</small></div>
-            </div>
-          </div>
-
-          {/* Texto */}
-          <div className="philo-copy">
-            <span className="eyebrow" data-reveal>Filosofía</span>
-            <h2 data-reveal style={{ transitionDelay:'.08s' }}>
-              Mallku: el <em>espíritu de las cumbres</em>.
-            </h2>
-            <p data-reveal style={{ transitionDelay:'.14s' }}>
-              <span className="drop">En la cosmología andina, <strong>Mallku</strong> es la montaña sagrada</span>: el espíritu divino que custodia las alturas y conecta lo terrenal con lo excepcional. Ese mismo respeto por el origen guía nuestra selección.
-            </p>
-            <p data-reveal style={{ transitionDelay:'.20s' }}>
-              El café de especialidad nace en la altura: entre los 1400 y 2200 msnm, el grano madura lento, ganando densidad y una complejidad química única. Honramos esa nobleza con un <strong>tueste de precisión en pequeños lotes</strong>, directo en el corazón de Tucumán.
-            </p>
-            <div className="stats">
-              <div className="stat" data-reveal style={{ transitionDelay:'.10s' }}><b>1400–2200</b><span>msnm de altura</span></div>
-              <div className="stat" data-reveal style={{ transitionDelay:'.18s' }}><b>5</b><span>orígenes selectos</span></div>
-              <div className="stat" data-reveal style={{ transitionDelay:'.26s' }}><b>250 g</b><span>tueste fresco por lote</span></div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* ══ CAFÉS / PRODUCTOS ═════════════════════════════════ */}
       <section className="section alt" id="cafes">
         <div className="wrap">
           <div className="section-head" data-reveal>
             <span className="eyebrow">Nuestros orígenes</span>
-            <h2>Una geografía en cada bolsa.</h2>
-            <p>Single origins seleccionados a mano y tostados para revelar el carácter de su tierra. Pasá el cursor sobre cada café para descubrir su perfil.</p>
+            <h2>Una geografía en cada bolsa</h2>
+            <p>Single origins seleccionados a mano y tostados para revelar el carácter de su tierra. Hacé clic en una bolsa y abrí su perfil completo: tueste, acidez, cuerpo e intensidad.</p>
           </div>
 
           {/* Filtros */}
           <div className="filters" data-reveal>
             {[['todos','Todos'],['america','América'],['africa','África']].map(([val,label]) => (
-              <button key={val} className={`chip${filter===val?' active':''}`} onClick={() => setFilter(val)}>
+              <button key={val} className={`chip${filter===val?' active':''}`} onClick={() => cambiarFiltro(val)}>
                 {label}
               </button>
             ))}
@@ -235,136 +244,33 @@ export default function Inicio({ navegar }) {
 
           {/* Grilla */}
           <div className="grid">
-            {filteredOrder.map((key, i) => {
-              const c = COFFEES[key]
-              return (
-                <article
-                  key={key}
-                  className="card"
-                  data-reveal
-                  data-continent={c.continent}
-                  style={{ '--accent': c.accent, transitionDelay: `${(i % 3) * 0.09}s` }}
-                >
-                  <div className="card-top">
-                    <span className="card-badge">Origen único</span>
-                    <span className="card-num">0{ORDER.indexOf(key) + 1}</span>
-                  </div>
-                  <figure className="card-photo">
-                    <img src={c.foto} alt={`Bolsa de café Mallku ${c.name} · ${c.region}`} loading="lazy" />
-                  </figure>
-                  <h3>{c.name} <em>{c.region}</em></h3>
-                  <p className="notes">{c.notes}</p>
-                  <div className="meta">
-                    <div><span className="k">Proceso</span><span className="v">{c.proceso}</span></div>
-                    <div><span className="k">Altura</span><span className="v">{c.altura} msnm</span></div>
-                    <div><span className="k">Tueste</span><span className="v">{c.tueste}</span></div>
-                  </div>
-                  <div className="card-price">{fmt(c.price)} <small style={{ fontFamily:'Montserrat,sans-serif', fontSize:'10px', fontWeight:500, color:'var(--muted)', letterSpacing:'.1em' }}>/ 250g</small></div>
-                  <div className="card-actions">
-                    <button className="card-perfil" onClick={() => selectCoffee(key, true)}>
-                      Ver perfil <span>→</span>
-                    </button>
-                    <button className="card-buy" onClick={() => navegar('tienda')}>
-                      Comprar
-                    </button>
-                  </div>
-                </article>
-              )
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* ══ EXPERIENCIA / PERFIL ══════════════════════════════ */}
-      <section className="section" id="experiencia" style={{ '--accent': activeCoffee.accent }}>
-        <div className="wrap">
-          <div className="section-head" data-reveal>
-            <span className="eyebrow">El perfil</span>
-            <h2>Conocé cada taza.</h2>
-            <p>Elegí un origen y descubrí su tueste, acidez, cuerpo e intensidad en un desglose visual.</p>
-          </div>
-
-          {/* Tabs */}
-          <div className="exp-tabs" data-reveal>
-            {ORDER.map((key) => (
-              <button
+            {filteredOrder.map((key, i) => (
+              <TarjetaCafe
                 key={key}
-                className={`exp-tab${activeKey === key ? ' active' : ''}`}
-                onClick={() => selectCoffee(key, false)}
-              >
-                {COFFEES[key].name}
-              </button>
+                keyName={key}
+                c={COFFEES[key]}
+                index={i}
+                expanded={expandedKey === key}
+                onToggle={toggleCoffee}
+                irATienda={irATienda}
+              />
             ))}
           </div>
-
-          <div className="exp" data-reveal>
-            {/* Info */}
-            <div className="exp-info">
-              <h3>{activeCoffee.name}</h3>
-              <div className="region">{activeCoffee.region}</div>
-              <p className="desc">{activeCoffee.desc}</p>
-              <div className="exp-icons">
-                <div className="ic"><IcNotas/><div><small>Notas</small><b>{activeCoffee.notes.split(' · ')[0]}</b></div></div>
-                <div className="ic"><IcTueste/><div><small>Tueste</small><b>{activeCoffee.tueste}</b></div></div>
-                <div className="ic"><IcCuerpo/><div><small>Proceso</small><b>{activeCoffee.proceso}</b></div></div>
-              </div>
-            </div>
-
-            {/* Barras */}
-            <div className="bars" ref={barsRef}>
-              {LEVELS.map(({ key, label, Icon }) => (
-                <div className="bar" key={key}>
-                  <div className="bar-head">
-                    <span className="name"><Icon/>{label}</span>
-                    <span className="val">{wordFor(activeCoffee.levels[key])}</span>
-                  </div>
-                  <div className="track">
-                    <div
-                      className="fill"
-                      style={{ width: barsVisible ? `${activeCoffee.levels[key]}%` : '0' }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </section>
 
-      {/* ══ NEGOCIOS: MAYORISTA & CAPACITACIONES ══════════════ */}
+      {/* ══ NEGOCIOS: MAYORISTA & CAPACITACIONES (resumen) ═════ */}
       <section className="section alt" id="negocios">
         <div className="wrap">
           <div className="section-head" data-reveal>
             <span className="eyebrow">Mallku para negocios</span>
-            <h2>Más allá de la taza.</h2>
-            <p>Acompañamos a cafeterías con soporte técnico real, y a los curiosos del café con formación y experiencias de cata.</p>
+            <h2>Más allá de la taza</h2>
+            <p>Invitamos a los curiosos del café a vivir nuestras catas y experiencias, y acompañamos a cafeterías con soporte técnico real.</p>
           </div>
 
           <div className="biz-grid">
-            {/* Mayorista & Soporte Técnico */}
-            <article className="biz-card" id="mayorista" data-reveal>
-              <div className="biz-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M7 3h10l-2 7H9z"/>
-                  <path d="M9 10v4a3 3 0 0 0 6 0v-4"/>
-                  <path d="M10.5 17h3v4h-3z"/>
-                </svg>
-              </div>
-              <span className="biz-tag">Mayorista & soporte técnico</span>
-              <h3>¿Tenés una cafetería? Llevá Mallku a tu tolva.</h3>
-              <p>Precios mayoristas, tostado fresco programado para tu barra y acompañamiento técnico de verdad para que cada extracción salga a la altura.</p>
-              <ul className="biz-list">
-                <li>Catálogo mayorista y precios por volumen</li>
-                <li>Consultoría post-cosecha y control de calidad</li>
-                <li>Calibración de molinos y recetas de extracción</li>
-              </ul>
-              <a className="btn btn-primary" href={waMayorista} target="_blank" rel="noopener noreferrer">
-                Pedir catálogo mayorista <span className="arrow">→</span>
-              </a>
-            </article>
-
-            {/* Capacitaciones & Experiencias */}
-            <article className="biz-card" id="capacitaciones" data-reveal style={{ transitionDelay:'.1s' }}>
+            {/* Catas & Experiencia Mallku */}
+            <Link className="biz-card" to="/experiencia" data-reveal>
               <div className="biz-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M5 8h11v6a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4z"/>
@@ -372,18 +278,26 @@ export default function Inicio({ navegar }) {
                   <path d="M8 4.5c0 1-.8 1.3-.8 2.3M11.5 4.5c0 1-.8 1.3-.8 2.3"/>
                 </svg>
               </div>
-              <span className="biz-tag">Capacitaciones & experiencias</span>
-              <h3>Aprendé el ritual: cursos, talleres y catas guiadas.</h3>
-              <p>Formación en barismo desde cero, talleres de métodos y catas guiadas de nuestros orígenes. Cupos limitados y preventa exclusiva de cada fecha.</p>
-              <ul className="biz-list">
-                <li>Cursos de barismo (inicial y avanzado)</li>
-                <li>Talleres de métodos: espresso, V60, prensa</li>
-                <li>Catas guiadas y eventos especiales</li>
-              </ul>
-              <a className="btn btn-primary" href={waCursos} target="_blank" rel="noopener noreferrer">
-                Reservar mi lugar <span className="arrow">→</span>
-              </a>
-            </article>
+              <span className="biz-tag">Catas & experiencias</span>
+              <h3>Viví la experiencia Mallku: catas guiadas de nuestros orígenes</h3>
+              <p>Encuentros sensoriales en nuestro espacio de Yerba Buena: catas guiadas, talleres de métodos y eventos especiales alrededor del café.</p>
+              <span className="biz-card-link">Ver más <span>→</span></span>
+            </Link>
+
+            {/* Mayorista & Cafeterías */}
+            <Link className="biz-card" to="/mayorista" data-reveal style={{ transitionDelay:'.1s' }}>
+              <div className="biz-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M7 3h10l-2 7H9z"/>
+                  <path d="M9 10v4a3 3 0 0 0 6 0v-4"/>
+                  <path d="M10.5 17h3v4h-3z"/>
+                </svg>
+              </div>
+              <span className="biz-tag">Mayorista & cafeterías</span>
+              <h3>¿Tenés una cafetería? Llevá Mallku a tu tolva</h3>
+              <p>Precios mayoristas, tostado fresco programado para tu barra y acompañamiento técnico de verdad.</p>
+              <span className="biz-card-link">Ver más <span>→</span></span>
+            </Link>
           </div>
         </div>
       </section>
@@ -394,9 +308,9 @@ export default function Inicio({ navegar }) {
         <div className="wrap inner">
           <span className="eyebrow" data-reveal>El ritual</span>
           <h2 data-reveal style={{ transitionDelay:'.08s' }}>
-            Llevá la <em>altura</em> a tu taza.
+            Llevá la <em>altura</em> a tu taza
           </h2>
-          <button className="btn btn-primary" data-reveal style={{ transitionDelay:'.16s' }} onClick={() => navegar('tienda')}>
+          <button className="btn btn-primary" data-reveal style={{ transitionDelay:'.16s' }} onClick={irATienda}>
             Pedí tu café <span className="arrow">→</span>
           </button>
         </div>
@@ -430,11 +344,10 @@ export default function Inicio({ navegar }) {
             <div>
               <h5>Explorar</h5>
               <ul>
-                <li><button onClick={() => document.getElementById('origen')?.scrollIntoView({ behavior:'smooth' })}>Origen</button></li>
+                <li><Link to="/sobre-nosotros">Nosotros</Link></li>
                 <li><button onClick={() => document.getElementById('cafes')?.scrollIntoView({ behavior:'smooth' })}>Cafés</button></li>
-                <li><button onClick={() => document.getElementById('experiencia')?.scrollIntoView({ behavior:'smooth' })}>Experiencia</button></li>
-                <li><button onClick={() => document.getElementById('negocios')?.scrollIntoView({ behavior:'smooth' })}>Mayorista & Cursos</button></li>
-                <li><button onClick={() => window.scrollTo({ top:0, behavior:'smooth' })}>Inicio</button></li>
+                <li><Link to="/experiencia">Experiencia</Link></li>
+                <li><Link to="/mayorista">Mayorista</Link></li>
               </ul>
             </div>
 
@@ -444,7 +357,7 @@ export default function Inicio({ navegar }) {
               <ul>
                 {ORDER.map((key) => (
                   <li key={key}>
-                    <button onClick={() => navegar('tienda')}>{COFFEES[key].name} · {COFFEES[key].region}</button>
+                    <Link to="/tienda">{COFFEES[key].name} · {COFFEES[key].region}</Link>
                   </li>
                 ))}
               </ul>

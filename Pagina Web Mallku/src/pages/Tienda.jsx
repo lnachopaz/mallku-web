@@ -1,23 +1,11 @@
-import { useState, useEffect, useRef } from 'react'
-import { CFG, fmt, COFFEES, ORDER, MOLIENDAS } from '../config'
-
-function useReveal() {
-  const ref = useRef(null)
-  useEffect(() => {
-    const io = new IntersectionObserver(
-      (entries) => entries.forEach((e) => { if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target) } }),
-      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
-    )
-    const el = ref.current
-    if(!el) return
-    el.querySelectorAll('[data-reveal]').forEach((n) => io.observe(n))
-    return () => io.disconnect()
-  }, [])
-  return ref
-}
+import { useState } from 'react'
+import { fmt, COFFEES, ORDER, MOLIENDAS, ACCESORIOS, ORDEN_ACCESORIOS } from '../config'
+import useReveal from '../hooks/useReveal'
+import Footer from '../components/Footer'
+import MoliendaGuide from '../components/MoliendaGuide'
 
 // ── Tarjeta de producto ───────────────────────────────────────
-function TarjetaProducto({ producto, index, agregarAlCarrito }) {
+function TarjetaProducto({ producto, index, agregarAlCarrito, onAbrirGuia }) {
   const [molienda, setMolienda] = useState('')
   const [qty,      setQty]      = useState(1)
   const [added,    setAdded]    = useState(false)
@@ -83,6 +71,97 @@ function TarjetaProducto({ producto, index, agregarAlCarrito }) {
           </select>
         </div>
         {warn && !molienda && <div className="select-hint">Elegí la molienda para poder agregarlo.</div>}
+        <button
+          type="button"
+          className="molienda-help"
+          onClick={() => onAbrirGuia((valor) => { setMolienda(valor); setWarn(false) })}
+        >
+          ¿No sabés cuál elegir? <span>→</span>
+        </button>
+
+        <div className="row">
+          <div className="qty">
+            <button onClick={() => setQty((v) => Math.max(1, v-1))} aria-label="Restar">−</button>
+            <span>{qty}</span>
+            <button onClick={() => setQty((v) => Math.min(99, v+1))} aria-label="Sumar">+</button>
+          </div>
+          <button className={`add${added?' added':''}`} onClick={handleAgregar} disabled={added}>
+            {added ? '✓ Agregado' : 'Agregar al carrito'}
+          </button>
+        </div>
+      </div>
+    </article>
+  )
+}
+
+// ── Tarjeta de accesorio (sin molienda; selector de tamaño/modelo) ──
+function TarjetaAccesorio({ producto, index, agregarAlCarrito }) {
+  const [varianteId, setVarianteId] = useState('')
+  const [qty,         setQty]       = useState(1)
+  const [added,       setAdded]     = useState(false)
+  const [warn,        setWarn]      = useState(false)
+
+  const variante   = producto.variantes.find((v) => v.id === varianteId)
+  const primeraVar = producto.variantes[0]
+
+  const handleAgregar = () => {
+    if (!variante) { setWarn(true); return }
+    agregarAlCarrito({
+      id:       `${producto.key}__${variante.id}`,
+      key:      producto.key,
+      name:     producto.name,
+      variante: variante.label,
+      accent:   producto.accent,
+      foto:     producto.foto,
+      qty,
+      price:    variante.price,
+    })
+    setAdded(true)
+    setTimeout(() => { setAdded(false); setQty(1) }, 1400)
+  }
+
+  return (
+    <article
+      className="shop-card"
+      id={`p-${producto.key}`}
+      data-reveal
+      style={{ '--accent': producto.accent, transitionDelay: `${(index % 3) * 0.08}s` }}
+    >
+      {/* Foto del producto */}
+      <figure className="shop-photo">
+        <img src={producto.foto} alt={producto.name} loading="lazy" />
+      </figure>
+
+      {/* Sello */}
+      <div className="shop-stamp">
+        <div className="s-badge">Accesorio</div>
+        <h3>{producto.name}</h3>
+      </div>
+
+      {/* Cuerpo */}
+      <div className="shop-body">
+        <p className="shop-desc">{producto.desc}</p>
+
+        <div className="shop-price">
+          {fmt(variante ? variante.price : primeraVar.price)}
+          <small>{variante ? variante.label : `desde ${primeraVar.label}`}</small>
+        </div>
+
+        <div className="field-label">Elegí el tamaño <span className="req">*</span></div>
+        <div className={`select-wrap${warn && !variante ? ' warn' : ''}`}>
+          <select
+            value={varianteId}
+            onChange={(e) => { setVarianteId(e.target.value); setWarn(false) }}
+            aria-label={`Elegí el tamaño de ${producto.name}`}
+            required
+          >
+            <option value="" disabled>Elegí una opción…</option>
+            {producto.variantes.map((v) => (
+              <option key={v.id} value={v.id}>{v.label} — {fmt(v.price)}</option>
+            ))}
+          </select>
+        </div>
+        {warn && !variante && <div className="select-hint">Elegí una opción para poder agregarlo.</div>}
 
         <div className="row">
           <div className="qty">
@@ -103,6 +182,15 @@ function TarjetaProducto({ producto, index, agregarAlCarrito }) {
 export default function Tienda({ agregarAlCarrito }) {
   const pageRef = useReveal()
 
+  // Filtro de catálogo: todos | cafes | accesorios
+  const [cat, setCat] = useState('todos')
+
+  // Guarda la función "aplicar molienda" de la tarjeta que abrió la guía (o null si está cerrada)
+  const [aplicarMolienda, setAplicarMolienda] = useState(null)
+  const abrirGuia  = (setter) => setAplicarMolienda(() => setter)
+  const cerrarGuia = () => setAplicarMolienda(null)
+  const elegirEnGuia = (molienda) => { aplicarMolienda?.(molienda); cerrarGuia() }
+
   return (
     <div ref={pageRef}>
 
@@ -110,7 +198,7 @@ export default function Tienda({ agregarAlCarrito }) {
       <section className="shop-hero">
         <div className="wrap">
           <span className="eyebrow" data-reveal>Tienda · Tostado en Tucumán</span>
-          <h1 data-reveal style={{ transitionDelay:'.08s' }}>Elegí tu <em>altura</em>.</h1>
+          <h1 data-reveal style={{ transitionDelay:'.08s' }}>Elegí tu <em>altura</em></h1>
           <p data-reveal style={{ transitionDelay:'.16s' }}>
             Café de especialidad tostado en pequeños lotes. Seleccioná tu origen, la molienda exacta para tu método, y armá tu pedido.
           </p>
@@ -140,71 +228,73 @@ export default function Tienda({ agregarAlCarrito }) {
         </div>
       </section>
 
-      {/* Catálogo */}
-      <section className="shop" id="catalogo">
+      {/* Filtros de catálogo */}
+      <section className="shop-filterbar">
         <div className="wrap">
-          <div className="shop-grid">
-            {ORDER.map((key, i) => (
-              <TarjetaProducto
-                key={key}
-                producto={{ ...COFFEES[key], key }}
-                index={i}
-                agregarAlCarrito={agregarAlCarrito}
-              />
+          <div className="filters" data-reveal>
+            {[['todos','Todos'],['cafes','Cafés en grano'],['accesorios','Accesorios']].map(([val,label]) => (
+              <button key={val} className={`chip${cat===val?' active':''}`} onClick={() => setCat(val)}>
+                {label}
+              </button>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="footer" id="contacto">
-        <div className="wrap">
-          <div className="footer-grid footer-grid-3">
-            <div>
-              <div className="brand" style={{ marginBottom:0 }}>
-                <img className="mark" src="/img/logo.png" alt="" width="42" height="42" />
-                <span className="word"><b>Mallku</b><span>TOSTADORES DE CAFÉ</span></span>
-              </div>
-              <p className="f-about">Café de especialidad tostado con precisión en Tucumán, Argentina. Granos seleccionados en origen, con el espíritu de las cumbres en cada lote.</p>
-              <div className="socials">
-                <a href={CFG.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram">
-                  <svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.9.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s0 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58 0-4.85-.07c-1.17-.05-1.8-.25-2.23-.41a3.7 3.7 0 0 1-1.38-.9 3.7 3.7 0 0 1-.9-1.38c-.16-.42-.36-1.06-.41-2.23C2.21 15.58 2.2 15.2 2.2 12s0-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.21 8.8 2.2 12 2.2zm0 1.8c-3.14 0-3.5 0-4.74.07-.9.04-1.38.19-1.7.32-.43.16-.74.36-1.06.68-.32.32-.52.63-.68 1.06-.13.32-.28.8-.32 1.7C3.8 8.5 3.8 8.86 3.8 12s0 3.5.07 4.74c.04.9.19 1.38.32 1.7.16.43.36.74.68 1.06.32.32.63.52 1.06.68.32.13.8.28 1.7.32 1.24.07 1.6.07 4.74.07s3.5 0 4.74-.07c.9-.04 1.38-.19 1.7-.32.43-.16.74-.36 1.06-.68.32-.32.52-.63.68-1.06.13-.32.28-.8.32-1.7.07-1.24.07-1.6.07-4.74s0-3.5-.07-4.74c-.04-.9-.19-1.38-.32-1.7a2.85 2.85 0 0 0-.68-1.06 2.85 2.85 0 0 0-1.06-.68c-.32-.13-.8-.28-1.7-.32C15.5 4 15.14 4 12 4zm0 3.06A4.94 4.94 0 1 1 12 17a4.94 4.94 0 0 1 0-9.88zm0 1.8a3.14 3.14 0 1 0 0 6.28 3.14 3.14 0 0 0 0-6.28zM17.84 6.6a1.15 1.15 0 1 1 0 2.3 1.15 1.15 0 0 1 0-2.3z"/></svg>
-                </a>
-                <a href={`https://wa.me/${CFG.whatsapp}`} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
-                  <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
-                </a>
-              </div>
+      {/* Catálogo de cafés */}
+      {cat !== 'accesorios' && (
+        <section className="shop" id="catalogo">
+          <div className="wrap">
+            <div className="section-head" data-reveal>
+              <span className="eyebrow">Single origins</span>
+              <h2>Cafés en grano</h2>
+              <p>Cinco orígenes, cinco personalidades. Elegí tu molienda exacta y lo tostamos fresco para tu método.</p>
             </div>
-
-            <div>
-              <h5>Explorar</h5>
-              <ul>
-                <li><a href="#catalogo" onClick={(e) => { e.preventDefault(); document.getElementById('catalogo')?.scrollIntoView({ behavior:'smooth' }) }}>Tienda</a></li>
-                <li><a href={`https://wa.me/${CFG.whatsapp}`} target="_blank" rel="noopener noreferrer">WhatsApp</a></li>
-                <li><a href={CFG.instagram} target="_blank" rel="noopener noreferrer">Instagram</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h5>¿Dudas con tu pedido?</h5>
-              <p className="f-about" style={{ marginTop:0 }}>Escribinos y te ayudamos a elegir tu café ideal según tu método de preparación.</p>
-              <a
-                href={`https://wa.me/${CFG.whatsapp}`}
-                target="_blank" rel="noopener noreferrer"
-                className="btn btn-light"
-                style={{ marginTop:8, display:'inline-flex' }}
-              >
-                Hablar por WhatsApp
-              </a>
+            <div className="shop-grid">
+              {ORDER.map((key, i) => (
+                <TarjetaProducto
+                  key={key}
+                  producto={{ ...COFFEES[key], key }}
+                  index={i}
+                  agregarAlCarrito={agregarAlCarrito}
+                  onAbrirGuia={abrirGuia}
+                />
+              ))}
             </div>
           </div>
+        </section>
+      )}
 
-          <div className="footer-bottom">
-            <span>© {new Date().getFullYear()} Mallku · Tostadores de Café. Tostado con altura en Tucumán, Argentina.</span>
-            <span><a href={CFG.instagram} target="_blank" rel="noopener noreferrer">@mallkucafe</a></span>
+      {/* Accesorios */}
+      {cat !== 'cafes' && (
+        <section className="shop accesorios" id="accesorios">
+          <div className="wrap">
+            <div className="section-head" data-reveal>
+              <span className="eyebrow">Para tu ritual</span>
+              <h2>Accesorios para preparar en casa</h2>
+              <p>Todo lo que necesitás para extraer lo mejor de tu café, elegido para acompañar cada método.</p>
+            </div>
+            <div className="shop-grid">
+              {ORDEN_ACCESORIOS.map((key, i) => (
+                <TarjetaAccesorio
+                  key={key}
+                  producto={{ ...ACCESORIOS[key] }}
+                  index={i}
+                  agregarAlCarrito={agregarAlCarrito}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      </footer>
+        </section>
+      )}
+
+      <Footer/>
+
+      <MoliendaGuide
+        abierta={aplicarMolienda !== null}
+        onCerrar={cerrarGuia}
+        onElegir={elegirEnGuia}
+      />
 
     </div>
   )
