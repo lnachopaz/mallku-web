@@ -558,9 +558,21 @@ p{ margin:0; }
     grid-auto-flow:column;
     grid-auto-columns:min(78vw,320px);
     overflow-x:auto;
+    /* CLAVE (bug del scroll vertical trabado): al poner overflow-x:auto, el CSS
+       convierte automáticamente overflow-y de "visible" a "auto". Eso volvía al
+       carrusel un contenedor scrolleable TAMBIÉN en vertical, así que el dedo
+       deslizando hacia abajo scrolleaba (apenas) dentro del carrusel en vez de
+       mover la página. Fijándolo en hidden, el gesto vertical se propaga al body. */
+    overflow-y:hidden;
+    /* Cada tarjeta mide según su propio contenido. Sin esto el grid usa
+       align-items:stretch y, al expandir una, TODAS las demás se estiran
+       a la altura de la más alta de la fila. */
+    align-items:start;
     margin-inline:calc(clamp(20px,5vw,64px) * -1);
     padding-inline:clamp(20px,5vw,64px);
-    padding-block:6px 22px;
+    /* El padding de abajo también da aire a la sombra de la tarjeta expandida,
+       que ahora queda recortada por el overflow-y:hidden. */
+    padding-block:6px 30px;
     /* Sin scroll-snap: hasta el modo "proximity" seguía trabando a veces el
        scroll vertical de la página al pasar el dedo sobre las tarjetas.
        El carrusel queda con deslizamiento libre (momentum nativo). */
@@ -573,6 +585,36 @@ p{ margin:0; }
   /* En el carrusel mobile la tarjeta expandida mantiene su lugar y
      el perfil se apila debajo (no salta al inicio) */
   .grid .card.expanded{ grid-column:auto; order:0; }
+
+  /* ── Tarjetas del carrusel todas a la misma altura ──────────
+     Con align-items:start cada tarjeta mide su contenido, así que quedaban
+     desparejas: las descripciones y las notas de cata tienen largos distintos
+     (de 115 a 145 caracteres unas, de 1 a 3 líneas las otras).
+     En vez de inventar un min-height en píxeles —que se rompería porque el
+     alto de la foto depende del ancho de pantalla (aspect-ratio 4/3)— fijamos
+     en cuántas líneas ocupa cada bloque de texto. Así el alto total queda
+     idéntico en las 5 tarjetas y sigue siendo responsive. */
+  .grid .card-desc{
+    display:-webkit-box; -webkit-box-orient:vertical;
+    -webkit-line-clamp:4; line-clamp:4;
+    overflow:hidden;
+    min-height:calc(4 * 1.6em);   /* 1.6 = su line-height */
+  }
+  .grid .card-notes .notes-text{
+    display:-webkit-box; -webkit-box-orient:vertical;
+    -webkit-line-clamp:2; line-clamp:2;
+    overflow:hidden;
+    min-height:calc(2 * 1.4em);   /* 1.4 = su line-height */
+  }
+  /* La fila Proceso/Altura/Tueste no debe partirse en dos renglones en las
+     tarjetas con valores largos (1400–1800 msnm), o sumaría alto de más */
+  .grid .card .meta{ gap:12px; }
+  .grid .card .meta .v{ white-space:nowrap; }
+
+  /* Ya expandida, el texto completo se muestra sin recortes */
+  .grid .card.expanded .card-notes .notes-text{
+    -webkit-line-clamp:none; line-clamp:none; display:block; min-height:0;
+  }
   .shop-grid{ grid-template-columns:1fr; }
   .hero-photo-content{ padding-top:140px; }
   .shop-hero{ padding-top:128px; }

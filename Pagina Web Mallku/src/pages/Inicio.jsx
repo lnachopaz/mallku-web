@@ -62,9 +62,14 @@ function TarjetaCafe({ c, keyName, index, expanded, onToggle, irATienda }) {
           <span className="card-num">0{ORDER.indexOf(keyName) + 1}</span>
         </div>
 
-        <figure className="card-photo" onClick={() => onToggle(keyName)}>
+        {/* Al abrir el perfil la foto de la bolsa se cruza con la de la nota de
+            cata (el CSS .show-nota hace el fundido entre las dos imágenes) */}
+        <figure
+          className={`card-photo${expanded ? ' show-nota' : ''}`}
+          onClick={() => onToggle(keyName)}
+        >
           <img className="ph-main" src={c.foto} alt={`Bolsa de café Mallku ${c.name} · ${c.region}`} loading="lazy" />
-          <img className="ph-nota" src={c.notaFoto} alt={`Nota de cata de ${c.name}`} loading="lazy" />
+          <img className="ph-nota" src={c.notaFoto} alt={`Nota de cata de ${c.name}: ${c.notaPrincipal}`} loading="lazy" />
           <span className="card-flip-hint"><IcNotas /> {expanded ? 'Cerrar perfil' : 'Ver perfil'}</span>
         </figure>
 
