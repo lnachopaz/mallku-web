@@ -1,17 +1,94 @@
 <!doctype html>
-<html lang="es">
+<html lang="es-AR">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Identidad -->
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Mallku · Tostadores de café de especialidad. Granos de altura tostados en pequeños lotes en Tucumán, Argentina." />
-    <title>Mallku · Tostadores de Café de Especialidad</title>
+    <meta name="theme-color" content="#3B2419" />
+
+    <!-- SEO base -->
+    <title>Mallku · Café de Especialidad | Tostadores en Tucumán</title>
+    <meta name="description" content="Mallku Café: tostadores de café de especialidad en Tucumán, Argentina. Granos de altura de Colombia, Brasil, Perú, Kenia y Honduras, tostados en pequeños lotes. Envíos a todo el país." />
+    <link rel="canonical" href="https://mallkucafe.com/" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+    <meta name="author" content="Mallku Café" />
+
+    <!-- Open Graph (WhatsApp, Facebook, Instagram, LinkedIn) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Mallku Café" />
+    <meta property="og:locale" content="es_AR" />
+    <meta property="og:url" content="https://mallkucafe.com/" />
+    <meta property="og:title" content="Mallku · Café de Especialidad" />
+    <meta property="og:description" content="Tostadores de café de especialidad en Tucumán. Granos de altura tostados en pequeños lotes. Envíos a todo el país." />
+    <meta property="og:image" content="https://mallkucafe.com/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Bolsas de café de especialidad Mallku al atardecer" />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Mallku · Café de Especialidad" />
+    <meta name="twitter:description" content="Tostadores de café de especialidad en Tucumán. Granos de altura tostados en pequeños lotes." />
+    <meta name="twitter:image" content="https://mallkucafe.com/og-image.jpg" />
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Work+Sans:wght@300;400;500;600;700&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+    <!-- Datos estructurados: le dice a Google qué es "Mallku" -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://mallkucafe.com/#organization",
+          "name": "Mallku",
+          "alternateName": ["Mallku Café", "Mallku Cafe", "mallkucafe"],
+          "url": "https://mallkucafe.com/",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://mallkucafe.com/img/logo.png"
+          },
+          "image": "https://mallkucafe.com/og-image.jpg",
+          "description": "Tostadores de café de especialidad. Granos de altura tostados en pequeños lotes en Tucumán, Argentina.",
+          "email": "hola@mallkucafe.com",
+          "areaServed": {
+            "@type": "Country",
+            "name": "Argentina"
+          },
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "San Miguel de Tucumán",
+            "addressRegion": "Tucumán",
+            "addressCountry": "AR"
+          },
+          "sameAs": [
+            "https://www.instagram.com/mallkucafe"
+          ],
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "contactType": "customer service",
+            "telephone": "+5493813361950",
+            "email": "hola@mallkucafe.com",
+            "availableLanguage": ["Spanish"]
+          }
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://mallkucafe.com/#website",
+          "url": "https://mallkucafe.com/",
+          "name": "Mallku Café",
+          "inLanguage": "es-AR",
+          "publisher": { "@id": "https://mallkucafe.com/#organization" }
+        }
+      ]
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>

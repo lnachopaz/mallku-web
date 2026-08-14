@@ -12,11 +12,20 @@ import Experiencia   from './pages/Experiencia'
 import Mayorista     from './pages/Mayorista'
 import { supabase }  from './supabase'
 import { COFFEES }   from './config'
+import { applySeo }  from './seo'
 
 /* Al cambiar de ruta, la página nueva arranca siempre desde arriba */
 function ScrollToTop() {
   const { pathname } = useLocation()
   useEffect(() => { window.scrollTo({ top: 0, behavior: 'instant' }) }, [pathname])
+  return null
+}
+
+/* Cada ruta actualiza su propio título, descripción y canonical.
+   Sin esto, Google mostraría el mismo texto para las 5 páginas. */
+function Seo() {
+  const { pathname } = useLocation()
+  useEffect(() => { applySeo(pathname) }, [pathname])
   return null
 }
 
@@ -90,6 +99,7 @@ export default function App() {
       <div className="grain" aria-hidden="true" />
 
       <ScrollToTop />
+      <Seo />
 
       <Navbar
         totalItems={totalItems}

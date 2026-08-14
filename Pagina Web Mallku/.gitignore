@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Fotos originales sin procesar: se guardan local pero NO se suben ni deployan.
+# Antes vivían en public/img/ y se subían al hosting sin usarse (110 MB).
+fotos-originales
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
