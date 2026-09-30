@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react'
-import { CFG, fmt, COFFEES } from '../config'
+import { CFG, fmt, COFFEES, buscarCupon } from '../config'
 import { supabase } from '../supabase'
 
 export default function CartDrawer({ isOpen, onClose, carrito, changeQty, removeLine, clearCart, cartTotal, user, perfil }) {
   const [nombre, setNombre] = useState('')
   const [nota,   setNota]   = useState('')
+  const [codigo, setCodigo] = useState('')
+  const [cupon,  setCupon]  = useState(null)   // { codigo, pct } ya validado
+  const [cuponError, setCuponError] = useState('')
 
   useEffect(() => {
     const fn = (e) => { if (e.key === 'Escape' && isOpen) onClose() }
@@ -27,15 +30,32 @@ export default function CartDrawer({ isOpen, onClose, carrito, changeQty, remove
   }, [user, perfil])
 
   const totalItems = carrito.reduce((s, x) => s + x.qty, 0)
+  const descuento  = cupon ? Math.round(cartTotal * cupon.pct / 100) : 0
+  const total      = cartTotal - descuento
+
+  const aplicarCupon = () => {
+    const { cupon: c, error } = buscarCupon(codigo)
+    if (error) { setCupon(null); setCuponError(error); return }
+    setCupon({ codigo: codigo.trim().toUpperCase(), pct: c.pct })
+    setCuponError('')
+  }
+
+  const quitarCupon = () => { setCupon(null); setCodigo(''); setCuponError('') }
 
   const checkout = () => {
     if (!carrito.length) return
+    /* Si el carrito quedó abierto y el código venció en el medio, no lo mandamos */
+    if (cupon && buscarCupon(cupon.codigo).error) { quitarCupon(); setCuponError('Ese código ya venció.'); return }
     let msg = '¡Hola Mallku! ☕ Quiero hacer este pedido:\n\n'
     carrito.forEach((it) => {
       const detalle = it.variante ? it.variante : `${it.region} (${it.molienda}, 250 g)`
       msg += `• ${it.qty}× ${it.name} – ${detalle} — ${fmt(it.price * it.qty)}\n`
     })
     msg += `\nSubtotal: ${fmt(cartTotal)}`
+    if (cupon) {
+      msg += `\nDescuento ${cupon.pct}% (código ${cupon.codigo}): -${fmt(descuento)}`
+      msg += `\nTotal: ${fmt(total)}`
+    }
     if (nombre) msg += `\n\nNombre: ${nombre}`
     if (perfil?.direccion) msg += `\nDirección: ${perfil.direccion}${perfil.ciudad ? `, ${perfil.ciudad}` : ''}`
     if (nota)   msg += `\nNota: ${nota}`
@@ -46,7 +66,7 @@ export default function CartDrawer({ isOpen, onClose, carrito, changeQty, remove
       supabase.from('pedidos').insert({
         user_id: user.id,
         items:   carrito.map(({ key, name, region, molienda, variante, qty, price }) => ({ key, name, region, molienda, variante, qty, price })),
-        total:   cartTotal,
+        total:   total,
         nombre:  nombre || null,
         nota:    nota || null,
       }).then(({ error }) => { if (error) console.warn('No se pudo guardar el pedido:', error.message) })
@@ -114,9 +134,33 @@ export default function CartDrawer({ isOpen, onClose, carrito, changeQty, remove
           <p className="ship-note">El pedido se confirma por WhatsApp. Ahí coordinamos envío o retiro y el pago.</p>
           <input type="text" placeholder="Tu nombre (opcional)" value={nombre} onChange={(e) => setNombre(e.target.value)}/>
           <textarea rows={2} placeholder="Nota: dirección, método de café, etc. (opcional)" value={nota} onChange={(e) => setNota(e.target.value)}/>
+          {cupon ? (
+            <div className="cupon-ok">
+              <span>Código <b>{cupon.codigo}</b> · {cupon.pct}% off</span>
+              <button onClick={quitarCupon}>Quitar</button>
+            </div>
+          ) : (
+            <div className="cupon">
+              <input
+                type="text"
+                placeholder="Código de descuento"
+                value={codigo}
+                onChange={(e) => { setCodigo(e.target.value); setCuponError('') }}
+                onKeyDown={(e) => { if (e.key === 'Enter') aplicarCupon() }}
+              />
+              <button onClick={aplicarCupon} disabled={!codigo.trim()}>Aplicar</button>
+            </div>
+          )}
+          {cuponError && <p className="cupon-error">{cuponError}</p>}
+          {cupon && (
+            <div className="descuento">
+              <span>Subtotal {fmt(cartTotal)}</span>
+              <span>−{fmt(descuento)}</span>
+            </div>
+          )}
           <div className="subtotal">
-            <span className="lbl">Subtotal</span>
-            <span className="amt">{fmt(cartTotal)}</span>
+            <span className="lbl">{cupon ? 'Total' : 'Subtotal'}</span>
+            <span className="amt">{fmt(total)}</span>
           </div>
           <button className="wa-btn" onClick={checkout} disabled={!carrito.length}>
             <svg viewBox="0 0 24 24" aria-hidden="true">

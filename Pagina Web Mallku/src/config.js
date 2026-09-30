@@ -35,9 +35,9 @@ export const ACCESORIOS = {
     accent: 'var(--siena)',
     desc: 'El clásico método de inmersión: cuerpo pleno y extracción pareja, sin filtro de papel.',
     variantes: [
-      { id: '330ml', label: '330 ml · 1 taza', price: 15000 },
-      { id: '600ml', label: '600 ml · 2 tazas', price: 20000 },
-      { id: '1000ml', label: '1000 ml · 3 tazas', price: 25000 },
+      { id: '330ml', label: '330 ml · 1 taza', price: 20000 },
+      { id: '600ml', label: '600 ml · 2 tazas', price: 25000 },
+      { id: '1000ml', label: '1000 ml · 3 tazas', price: 35000 },
     ],
   },
   cafetera: {
@@ -47,12 +47,27 @@ export const ACCESORIOS = {
     accent: 'var(--siena)',
     desc: 'La moka tradicional: café concentrado y aromático, directo a la hornalla.',
     variantes: [
-      { id: '6pocillos', label: '6 pocillos', price: 30000 },
+      { id: '6pocillos', label: '6 pocillos', price: 40000 },
     ],
   },
 }
 
 export const ORDEN_ACCESORIOS = ['prensa', 'cafetera']
+
+/* Códigos de descuento. `desde`/`hasta` en hora de Argentina (-03:00); fuera de ese rango
+   el código se rechaza solo. El pedido se cierra por WhatsApp, así que el descuento
+   viaja en el mensaje y se confirma a mano. */
+export const CUPONES = {
+  MALLKU15: { pct: 15, desde: '2026-10-01T00:00:00-03:00', hasta: '2026-10-04T23:59:59-03:00', motivo: 'Cumple de Mallku y Día del Café' },
+}
+
+export const buscarCupon = (codigo, ahora = new Date()) => {
+  const c = CUPONES[String(codigo || '').trim().toUpperCase()]
+  if (!c) return { error: 'Ese código no existe.' }
+  if (ahora < new Date(c.desde)) return { error: 'Ese código todavía no está activo.' }
+  if (ahora > new Date(c.hasta)) return { error: 'Ese código ya venció.' }
+  return { cupon: c }
+}
 
 /* Fotos del carrusel del hero (Inicio). El orden acá define el orden en pantalla. */
 export const HERO_CAROUSEL = [

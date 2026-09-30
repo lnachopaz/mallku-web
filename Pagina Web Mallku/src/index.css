@@ -416,6 +416,18 @@ p{ margin:0; }
 .drawer-foot .ship-note{ font-size:11px; color:var(--muted); margin:0 0 14px; display:flex; gap:8px; align-items:flex-start; }
 .drawer-foot input,.drawer-foot textarea{ width:100%; background:var(--paper); border:1px solid var(--line); border-radius:3px; padding:11px 13px; font-family:inherit; font-size:13px; color:var(--coffee); margin-bottom:10px; outline:none; transition:border-color .3s; resize:none; }
 .drawer-foot input:focus,.drawer-foot textarea:focus{ border-color:var(--siena); }
+.cupon{ display:flex; gap:8px; }
+.cupon input{ flex:1; min-width:0; text-transform:uppercase; }
+.cupon input::placeholder{ text-transform:none; }
+.cupon button{ height:42px; padding:0 16px; border:1px solid var(--siena); border-radius:3px; color:var(--siena); font-size:11px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; transition:all .3s; }
+.cupon button:hover{ background:var(--siena); color:#fff; }
+.cupon button:disabled{ opacity:.4; pointer-events:none; }
+.cupon-ok{ display:flex; justify-content:space-between; align-items:center; padding:10px 13px; margin-bottom:10px; border:1px dashed var(--siena); border-radius:3px; font-size:13px; color:var(--coffee); }
+.cupon-ok button{ font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+.cupon-ok button:hover{ color:var(--coffee); }
+.cupon-error{ font-size:12px; color:#b3412e; margin:-4px 0 10px; }
+.descuento{ display:flex; justify-content:space-between; font-size:13px; color:var(--muted); margin-top:4px; }
+.descuento span:last-child{ color:#1f8a4c; font-weight:600; }
 .subtotal{ display:flex; justify-content:space-between; align-items:baseline; margin:6px 0 16px; }
 .subtotal .lbl{ font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); }
 .subtotal .amt{ font-family:'Bitter',serif; font-size:30px; color:var(--espresso); }
