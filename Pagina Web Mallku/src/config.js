@@ -58,7 +58,9 @@ export const ORDEN_ACCESORIOS = ['prensa', 'cafetera']
    el código se rechaza solo. El pedido se cierra por WhatsApp, así que el descuento
    viaja en el mensaje y se confirma a mano. */
 export const CUPONES = {
-  MALLKU15: { pct: 15, desde: '2026-10-01T00:00:00-03:00', hasta: '2026-10-04T23:59:59-03:00', motivo: 'Cumple de Mallku y Día del Café' },
+  MALLKU10: { pct: 10, desde: '2026-10-01T00:00:00-03:00', hasta: '2026-10-04T23:59:59-03:00', motivo: 'Cumple de Mallku y Día del Café' },
+  // Nombre anterior de la misma promo (arrancó al 15%): se deja andando al 10% para quien ya lo tenga
+  MALLKU15: { pct: 10, desde: '2026-10-01T00:00:00-03:00', hasta: '2026-10-04T23:59:59-03:00', motivo: 'Cumple de Mallku y Día del Café' },
 }
 
 export const buscarCupon = (codigo, ahora = new Date()) => {
