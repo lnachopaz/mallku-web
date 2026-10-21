@@ -18,12 +18,12 @@ export const SEO = {
   '/': {
     title: 'Mallku · Café de Especialidad | Tostadores en Tucumán',
     description:
-      'Mallku Café: tostadores de café de especialidad en Tucumán, Argentina. Granos de altura de Colombia, Brasil, Perú, Kenia y Honduras, tostados en pequeños lotes.',
+      'Mallku Café: tostadores de café de especialidad en Tucumán, Argentina. Granos de altura de Colombia, Brasil, Perú y Kenia, tostados en pequeños lotes.',
   },
   '/tienda': {
     title: 'Tienda · Comprar Café de Especialidad | Mallku',
     description:
-      'Comprá café de especialidad en grano o molido. Colombia, Brasil, Perú, Kenia y Honduras, tostados en pequeños lotes. Elegí tu molienda y recibilo en casa.',
+      'Comprá café de especialidad en grano o molido. Colombia, Brasil, Perú y Kenia, tostados en pequeños lotes. Elegí tu molienda y recibilo en casa.',
   },
   '/sobre-nosotros': {
     title: 'Sobre Nosotros · Nuestra Historia | Mallku Café',
