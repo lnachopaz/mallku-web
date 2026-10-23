@@ -36,8 +36,8 @@ export const ACCESORIOS = {
     accent: 'var(--siena)',
     desc: 'El clásico método de inmersión: cuerpo pleno y extracción pareja, sin filtro de papel.',
     variantes: [
-      { id: '330ml', label: '330 ml · 1 taza', price: 20000 },
-      { id: '600ml', label: '600 ml · 2 tazas', price: 25000 },
+      { id: '330ml', label: '330 ml · 1 taza', price: 25000 },
+      { id: '600ml', label: '600 ml · 2 tazas', price: 30000 },
       { id: '1000ml', label: '1000 ml · 3 tazas', price: 35000 },
     ],
   },
